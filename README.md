@@ -1,16 +1,16 @@
-# 🏰 The Shire
+# 🏰 The Greenlands
 
-A LOTR-themed RPG with AI-powered narrative, built with Flutter.
+A fantasy RPG with AI-powered narrative, built with Flutter.
 
 ## ✨ Features
 
 ### Core Gameplay
 - **Quest-based Adventure**: Complete main quests, side quests, and daily challenges
-- **Fellowship Companions**: Interact with Gandalf, Frodo, Sam, Aragorn, Legolas, and Galadriel
+- **Company of Heroes**: Interact with companions and build your fellowship
 - **Character Progression**: Level up your character, allocate stats, and equip items
 - **AI-Powered Dialogue**: Context-aware NPC conversations powered by Claude AI
 - **Dynamic Quests**: AI-generated quests tailored to your progress
-- **Galadriel's Mirror**: Ask the Lady of Light for guidance and LOTR lore
+- **Lumina's Guidance**: Ask the Seer for guidance and lore
 
 ### Character System
 - **Races**: Hobbit, Human, Elf, Dwarf (each with unique stat bonuses)
@@ -29,12 +29,12 @@ A LOTR-themed RPG with AI-powered narrative, built with Flutter.
 ### Chat Platform Integration
 - **Multi-Chat Support**: Google Chat, Slack, Discord (via MCP server)
 - **Hybrid Mode**: Full game locally + status checks via chat commands
-- **Commands**: `!shire status`, `!shire quests`, `!shire inventory`, `!shire link`
+- **Commands**: `!greenlands status`, `!greenlands quests`, `!greenlands inventory`, `!greenlands link`
 - **Notifications**: Receive game updates in your chat platforms
 
 ### UI/UX
 - **16-bit Retro Aesthetic**: Pixel-art inspired with sharp borders and emoji avatars
-- **LOTR Theme**: Dark forest green background, gold accents, brown UI elements
+- **Fantasy Theme**: Dark forest green background, gold accents, brown UI elements
 - **Monospace Font**: Courier New for that classic retro feel
 
 ## 🚀 Getting Started
@@ -126,7 +126,7 @@ All AI features use Anthropic's Claude API with specialized prompts:
 
 1. **Character Dialogue**: NPCs respond based on personality, relationship level, and quest context
 2. **Quest Generation**: Dynamic quests tailored to player level and story progress
-3. **Lore Assistant** (Galadriel's Mirror): Ask about LOTR lore or game guidance
+3. **Lore Assistant** (Lumina's Guidance): Ask about game lore or guidance
 4. **Natural Language Commands**: Parse player text into game actions
 
 ### Context Management
@@ -172,15 +172,15 @@ DEBUG_MODE=true
 - [x] Dependency injection setup
 - [x] 16-bit retro theme
 
-### 🚧 Phase 2: Character System (IN PROGRESS)
-- [ ] Character entity and data models
-- [ ] Character creation wizard UI
-  - [ ] Race selection
-  - [ ] Class selection
-  - [ ] Stat allocation
-  - [ ] Fellowship role
-- [ ] Character persistence
-- [ ] Leveling and XP system
+### ✅ Phase 2: Character System (COMPLETED)
+- [x] Character entity and data models
+- [x] Character creation wizard UI
+  - [x] Race selection
+  - [x] Class selection
+  - [x] Stat allocation
+  - [x] Fellowship role
+- [x] Character persistence
+- [x] Leveling and XP system
 
 ### 📋 Phase 3: Quest System (PLANNED)
 - [ ] Quest entities and models
@@ -198,7 +198,7 @@ DEBUG_MODE=true
 ### 📋 Phase 5: Claude RAG Integration (PLANNED)
 - [ ] Claude API client
 - [ ] RAG repository with prompt templates
-- [ ] Galadriel's Mirror chat UI
+- [ ] Lumina's Guidance chat UI
 - [ ] Dynamic NPC dialogue
 - [ ] Quest generation
 
@@ -259,7 +259,7 @@ This project follows Clean Architecture principles:
 
 ## 🤝 Contributing
 
-This is a personal project, but feel free to fork and customize!
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development workflow and branch protection setup.
 
 ## 📄 License
 
@@ -268,12 +268,9 @@ This project is for educational and personal use.
 ## 🎉 Acknowledgments
 
 - Anthropic Claude for AI-powered narrative
-- J.R.R. Tolkien for creating Middle-earth
 - Flutter team for the amazing framework
 - Multi-Chat MCP Server for chat integrations
 
 ---
 
 **Made with ❤️ and 🤖 AI**
-
-*"Not all those who wander are lost."* - J.R.R. Tolkien

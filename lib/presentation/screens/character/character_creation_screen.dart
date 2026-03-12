@@ -66,13 +66,13 @@ class CharacterCreationScreen extends ConsumerWidget {
                   height: 40,
                   decoration: BoxDecoration(
                     color: isCompleted || isActive
-                        ? ShireTheme.accentGold
-                        : ShireTheme.secondaryBrown,
+                        ? GreenlandsTheme.accentGold
+                        : GreenlandsTheme.secondaryBrown,
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: isActive
-                          ? ShireTheme.accentGold
-                          : ShireTheme.secondaryBrown,
+                          ? GreenlandsTheme.accentGold
+                          : GreenlandsTheme.secondaryBrown,
                       width: 2,
                     ),
                   ),
@@ -93,7 +93,7 @@ class CharacterCreationScreen extends ConsumerWidget {
                   steps[index],
                   style: TextStyle(
                     fontSize: 12,
-                    color: isActive ? ShireTheme.accentGold : Colors.grey,
+                    color: isActive ? GreenlandsTheme.accentGold : Colors.grey,
                     fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
                   ),
                 ),

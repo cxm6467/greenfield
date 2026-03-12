@@ -44,7 +44,7 @@ class ShireApp extends StatelessWidget {
     return MaterialApp(
       title: 'The Greenlands',
       debugShowCheckedModeBanner: false,
-      theme: ShireTheme.darkTheme,
+      theme: GreenlandsTheme.darkTheme,
       home: const SplashScreen(),
     );
   }
@@ -80,7 +80,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ShireTheme.primaryGreen,
+      backgroundColor: GreenlandsTheme.primaryGreen,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -96,14 +96,14 @@ class _SplashScreenState extends State<SplashScreen> {
             Text(
               'A Fantasy Adventure',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: ShireTheme.accentGold,
+                    color: GreenlandsTheme.accentGold,
                   ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 64),
             // Loading indicator
             const CircularProgressIndicator(
-              color: ShireTheme.accentGold,
+              color: GreenlandsTheme.accentGold,
             ),
             const SizedBox(height: 16),
             Text(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class ShireTheme {
-  // Color palette - LOTR/16-bit inspired
+class GreenlandsTheme {
+  // Color palette - Fantasy/16-bit inspired
   static const Color primaryGreen = Color(0xFF2F4F2F); // Dark forest green
   static const Color secondaryBrown = Color(0xFF8B4513); // Saddle brown
   static const Color accentGold = Color(0xFFFFD700); // Gold

@@ -1,4 +1,4 @@
-package com.shire.the_shire
+package com.greenlands
 
 import io.flutter.embedding.android.FlutterActivity
 
