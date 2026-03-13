@@ -154,7 +154,7 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> {
       if (!mounted) return;
 
       _showSuccess(
-        'Settings saved successfully! Restart app to apply changes.',
+        'Settings saved and applied successfully.',
       );
     } catch (e) {
       if (!mounted) return;
