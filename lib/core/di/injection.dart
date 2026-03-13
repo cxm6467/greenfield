@@ -194,23 +194,36 @@ Future<void> setupDependencies() async {
 /// This helps catch registration issues early, especially in web builds
 /// where type minification can cause GetIt lookup failures.
 void validateDependencies() {
-  final requiredDependencies = [
-    InjectionNames.characterRepository,
-    InjectionNames.createCharacter,
-    InjectionNames.getPlayerCharacter,
-    InjectionNames.allocateStatPoints,
-  ];
-
-  for (final name in requiredDependencies) {
-    if (!getIt.isRegistered(instanceName: name)) {
-      _logger.e('Required dependency not registered: $name');
-      throw Exception('Required dependency not registered: $name');
-    }
+  // Check each dependency with its proper type parameter
+  if (!getIt.isRegistered<CharacterRepository>(
+    instanceName: InjectionNames.characterRepository,
+  )) {
+    _logger.e('CharacterRepository not registered');
+    throw Exception('Required dependency not registered: CharacterRepository');
   }
 
-  _logger.i(
-    '✓ All ${requiredDependencies.length} required dependencies validated',
-  );
+  if (!getIt.isRegistered<CreateCharacter>(
+    instanceName: InjectionNames.createCharacter,
+  )) {
+    _logger.e('CreateCharacter not registered');
+    throw Exception('Required dependency not registered: CreateCharacter');
+  }
+
+  if (!getIt.isRegistered<GetPlayerCharacter>(
+    instanceName: InjectionNames.getPlayerCharacter,
+  )) {
+    _logger.e('GetPlayerCharacter not registered');
+    throw Exception('Required dependency not registered: GetPlayerCharacter');
+  }
+
+  if (!getIt.isRegistered<AllocateStatPoints>(
+    instanceName: InjectionNames.allocateStatPoints,
+  )) {
+    _logger.e('AllocateStatPoints not registered');
+    throw Exception('Required dependency not registered: AllocateStatPoints');
+  }
+
+  _logger.i('✓ All 4 required dependencies validated');
 }
 
 /// Reset all dependencies (useful for testing)
