@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/di/injection.dart';
+import '../../core/di/injection_names.dart';
 import '../../domain/entities/character.dart';
 import '../../domain/usecases/character/create_character.dart';
 import '../../domain/usecases/character/get_player_character.dart';
@@ -8,8 +9,12 @@ import '../../domain/usecases/character/get_player_character.dart';
 final characterProvider =
     StateNotifierProvider<CharacterNotifier, AsyncValue<Character?>>((ref) {
       return CharacterNotifier(
-        getPlayerCharacter: getIt<GetPlayerCharacter>(),
-        createCharacter: getIt<CreateCharacter>(),
+        getPlayerCharacter: getIt<GetPlayerCharacter>(
+          instanceName: InjectionNames.getPlayerCharacter,
+        ),
+        createCharacter: getIt<CreateCharacter>(
+          instanceName: InjectionNames.createCharacter,
+        ),
       );
     });
 

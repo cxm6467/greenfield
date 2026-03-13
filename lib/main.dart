@@ -23,6 +23,9 @@ void main() async {
     // Setup dependency injection
     await setupDependencies();
 
+    // Validate all required dependencies are registered
+    validateDependencies();
+
     _logger.i('✨ The Greenlands initialized successfully!');
 
     runApp(const ProviderScope(child: ShireApp()));

@@ -10,6 +10,7 @@ import '../../domain/repositories/character_repository.dart';
 import '../../domain/usecases/character/allocate_stat_points.dart';
 import '../../domain/usecases/character/create_character.dart';
 import '../../domain/usecases/character/get_player_character.dart';
+import 'injection_names.dart';
 
 final getIt = GetIt.instance;
 final _logger = Logger();
@@ -81,11 +82,13 @@ Future<void> setupDependencies() async {
   if (!kIsWeb) {
     getIt.registerLazySingleton<CharacterRepository>(
       () => CharacterRepositoryImpl(databaseHelper: getIt()),
+      instanceName: InjectionNames.characterRepository,
     );
     _logger.i('Character repository registered (SQLite)');
   } else {
     getIt.registerLazySingleton<CharacterRepository>(
       () => CharacterRepositoryWeb(),
+      instanceName: InjectionNames.characterRepository,
     );
     _logger.i('Character repository registered (Web in-memory)');
   }
@@ -114,9 +117,24 @@ Future<void> setupDependencies() async {
   // ============================================================================
 
   // Character use cases (work on both mobile and web)
-  getIt.registerLazySingleton(() => CreateCharacter(getIt()));
-  getIt.registerLazySingleton(() => GetPlayerCharacter(getIt()));
-  getIt.registerLazySingleton(() => AllocateStatPoints(getIt()));
+  getIt.registerLazySingleton(
+    () => CreateCharacter(
+      getIt(instanceName: InjectionNames.characterRepository),
+    ),
+    instanceName: InjectionNames.createCharacter,
+  );
+  getIt.registerLazySingleton(
+    () => GetPlayerCharacter(
+      getIt(instanceName: InjectionNames.characterRepository),
+    ),
+    instanceName: InjectionNames.getPlayerCharacter,
+  );
+  getIt.registerLazySingleton(
+    () => AllocateStatPoints(
+      getIt(instanceName: InjectionNames.characterRepository),
+    ),
+    instanceName: InjectionNames.allocateStatPoints,
+  );
   _logger.i('Character use cases registered');
 
   // TODO: Register other use cases as they are implemented
@@ -169,6 +187,28 @@ Future<void> setupDependencies() async {
   _logger.i('Services will be registered as implemented');
 
   _logger.i('Dependency injection setup complete');
+}
+
+/// Validate that all required dependencies are registered
+///
+/// This helps catch registration issues early, especially in web builds
+/// where type minification can cause GetIt lookup failures.
+void validateDependencies() {
+  final requiredDependencies = [
+    InjectionNames.characterRepository,
+    InjectionNames.createCharacter,
+    InjectionNames.getPlayerCharacter,
+    InjectionNames.allocateStatPoints,
+  ];
+
+  for (final name in requiredDependencies) {
+    if (!getIt.isRegistered(instanceName: name)) {
+      _logger.e('Required dependency not registered: $name');
+      throw Exception('Required dependency not registered: $name');
+    }
+  }
+
+  _logger.i('✓ All ${requiredDependencies.length} required dependencies validated');
 }
 
 /// Reset all dependencies (useful for testing)
