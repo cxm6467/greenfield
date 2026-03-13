@@ -62,6 +62,7 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> {
     final hasPassword = await ref
         .read(settingsAuthProvider.notifier)
         .hasPassword();
+    if (!mounted) return;
     setState(() {
       _hasPassword = hasPassword;
     });
