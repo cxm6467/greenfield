@@ -34,12 +34,15 @@ class CharacterRepositoryWeb implements CharacterRepository {
 
     // Get race and class bonuses
     final raceBonuses = GameConstants.RACE_STAT_BONUSES[race.displayName] ?? {};
-    final classBaseBonuses = GameConstants.CLASS_BASE_STATS[characterClass.displayName] ?? {};
+    final classBaseBonuses =
+        GameConstants.CLASS_BASE_STATS[characterClass.displayName] ?? {};
 
     // Calculate base stats (allocated + race bonuses)
     final baseStats = <String, int>{};
     for (final stat in ['strength', 'agility', 'constitution', 'wisdom']) {
-      baseStats[stat] = (allocatedStats[stat] ?? GameConstants.BASE_STAT_VALUE) + (raceBonuses[stat] ?? 0);
+      baseStats[stat] =
+          (allocatedStats[stat] ?? GameConstants.BASE_STAT_VALUE) +
+          (raceBonuses[stat] ?? 0);
     }
 
     // Calculate total stats (base + class bonuses)
@@ -132,7 +135,10 @@ class CharacterRepositoryWeb implements CharacterRepository {
     }
 
     // Calculate total points being allocated
-    final totalPointsAllocated = statAllocations.values.fold(0, (sum, val) => sum + val);
+    final totalPointsAllocated = statAllocations.values.fold(
+      0,
+      (sum, val) => sum + val,
+    );
 
     if (totalPointsAllocated > _character!.availableStatPoints) {
       throw Exception('Not enough available stat points');
@@ -145,16 +151,22 @@ class CharacterRepositoryWeb implements CharacterRepository {
     });
 
     // Recalculate total stats
-    final classBaseBonuses = GameConstants.CLASS_BASE_STATS[_character!.characterClass.displayName] ?? {};
+    final classBaseBonuses =
+        GameConstants.CLASS_BASE_STATS[_character!
+            .characterClass
+            .displayName] ??
+        {};
     final newTotalStats = <String, int>{};
     for (final stat in newBaseStats.keys) {
-      newTotalStats[stat] = (newBaseStats[stat]! + (classBaseBonuses[stat] ?? 0));
+      newTotalStats[stat] =
+          (newBaseStats[stat]! + (classBaseBonuses[stat] ?? 0));
     }
 
     _character = _character!.copyWith(
       baseStats: newBaseStats,
       totalStats: newTotalStats,
-      availableStatPoints: _character!.availableStatPoints - totalPointsAllocated,
+      availableStatPoints:
+          _character!.availableStatPoints - totalPointsAllocated,
       updatedAt: DateTime.now(),
     );
 
@@ -162,6 +174,9 @@ class CharacterRepositoryWeb implements CharacterRepository {
   }
 
   int _calculateXpForLevel(int level) {
-    return (GameConstants.BASE_XP_FOR_LEVEL_2 * (level - 1) * GameConstants.XP_SCALING_FACTOR).round();
+    return (GameConstants.BASE_XP_FOR_LEVEL_2 *
+            (level - 1) *
+            GameConstants.XP_SCALING_FACTOR)
+        .round();
   }
 }
