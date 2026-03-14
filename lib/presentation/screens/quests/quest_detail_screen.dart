@@ -40,11 +40,13 @@ class _QuestDetailScreenState extends ConsumerState<QuestDetailScreen> {
       );
       final quest = await questRepo.getQuestById(widget.questId);
 
+      if (!mounted) return;
       setState(() {
         _quest = quest;
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _error = e.toString();
         _isLoading = false;
