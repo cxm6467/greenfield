@@ -60,8 +60,7 @@ class _PixelArtAvatarState extends State<PixelArtAvatar> {
             return const Center(child: CircularProgressIndicator());
           }
           return ClipRRect(
-            borderRadius:
-                BorderRadius.circular(widget.showBorder ? 2 : 0),
+            borderRadius: BorderRadius.circular(widget.showBorder ? 2 : 0),
             child: CustomPaint(
               painter: PixelArtPainter(snapshot.data!),
               size: Size(widget.size, widget.size),
