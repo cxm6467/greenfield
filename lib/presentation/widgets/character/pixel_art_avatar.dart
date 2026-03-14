@@ -122,7 +122,7 @@ class _PixelArtAvatarState extends State<PixelArtAvatar> {
     _setPixel(pixels, 18, 14, eyeColor);
 
     // Racial features
-    switch (race) {
+    switch (widget.race) {
       case CharacterRace.dwarf:
         _drawDwarfBeard(pixels, hairColor);
         break;
@@ -138,7 +138,7 @@ class _PixelArtAvatarState extends State<PixelArtAvatar> {
     }
 
     // Class accessories
-    switch (characterClass) {
+    switch (widget.characterClass) {
       case CharacterClass.warrior:
         _drawHelmet(pixels);
         break;
@@ -219,7 +219,7 @@ class _PixelArtAvatarState extends State<PixelArtAvatar> {
   }
 
   Color _getSkinColor() {
-    switch (race) {
+    switch (widget.race) {
       case CharacterRace.elf:
         return const Color(0xFFFFE4C4);
       case CharacterRace.dwarf:
@@ -232,7 +232,7 @@ class _PixelArtAvatarState extends State<PixelArtAvatar> {
   }
 
   Color _getHairColor() {
-    switch (race) {
+    switch (widget.race) {
       case CharacterRace.dwarf:
         return const Color(0xFF8B4513);
       case CharacterRace.elf:
@@ -245,7 +245,7 @@ class _PixelArtAvatarState extends State<PixelArtAvatar> {
   }
 
   Color _getEyeColor() {
-    switch (characterClass) {
+    switch (widget.characterClass) {
       case CharacterClass.warrior:
         return const Color(0xFF8B4513);
       case CharacterClass.ranger:
