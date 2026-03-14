@@ -1,12 +1,12 @@
 name: Auto-approve Copilot suggestions
 
 on:
-  pull_request_target:
+  pull_request:
     types: [opened, synchronize]
 
 permissions:
   pull-requests: write
-  contents: write
+  contents: read
 
 jobs:
   auto-approve-copilot:
