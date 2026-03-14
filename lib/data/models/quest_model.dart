@@ -117,9 +117,9 @@ class QuestModel {
       'is_generated': isGenerated,
       'generation_context': generationContext,
       'recurrence_rule': recurrenceRule,
-      'accepted_at': acceptedAt,
-      'completed_at': completedAt,
-      'created_at': createdAt,
+      'accepted_at': _isoStringToDbTimestamp(acceptedAt),
+      'completed_at': _isoStringToDbTimestamp(completedAt),
+      'created_at': _isoStringToDbTimestamp(createdAt),
     };
   }
 
@@ -138,9 +138,10 @@ class QuestModel {
       isGenerated: map['is_generated'] as int,
       generationContext: map['generation_context'] as String?,
       recurrenceRule: map['recurrence_rule'] as String?,
-      acceptedAt: map['accepted_at'] as String?,
-      completedAt: map['completed_at'] as String?,
-      createdAt: map['created_at'] as String,
+      acceptedAt: _dbTimestampToIsoString(map['accepted_at']),
+      completedAt: _dbTimestampToIsoString(map['completed_at']),
+      createdAt: _dbTimestampToIsoString(map['created_at']) ??
+          DateTime.now().toIso8601String(),
     );
   }
 
@@ -164,6 +165,31 @@ class QuestModel {
     if (encoded == null || encoded.isEmpty) return [];
     final List<dynamic> decoded = jsonDecode(encoded);
     return decoded.map((e) => e as String).toList();
+  }
+
+  /// Convert an ISO-8601 string to an integer timestamp (milliseconds since epoch)
+  /// suitable for storage in an INTEGER column. Returns null if [isoString] is null.
+  static int? _isoStringToDbTimestamp(String? isoString) {
+    if (isoString == null) return null;
+    return DateTime.parse(isoString).millisecondsSinceEpoch;
+  }
+
+  /// Convert a database timestamp value (either INTEGER milliseconds or a String)
+  /// to an ISO-8601 string. Returns null if [value] is null or unrecognized.
+  static String? _dbTimestampToIsoString(dynamic value) {
+    if (value == null) return null;
+    if (value is int) {
+      return DateTime.fromMillisecondsSinceEpoch(value).toIso8601String();
+    }
+    if (value is num) {
+      return DateTime.fromMillisecondsSinceEpoch(value.toInt()).toIso8601String();
+    }
+    if (value is String) {
+      // Assume it is already an ISO-8601 string.
+      return value;
+    }
+    // Unrecognized type; fail gracefully.
+    return null;
   }
 }
 
