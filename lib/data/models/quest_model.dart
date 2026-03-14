@@ -29,7 +29,7 @@ class QuestModel {
   final String? acceptedAt;
   @JsonKey(name: 'completed_at')
   final String? completedAt;
-  @JsonKey(name: 'created_at')
+  @JsonKey(name: 'created_at', defaultValue: '')
   final String createdAt;
 
   const QuestModel({
