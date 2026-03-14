@@ -224,8 +224,8 @@ class GreenlandsTheme {
         unselectedItemColor: textSecondary,
         type: BottomNavigationBarType.fixed,
         elevation: 8,
-        selectedLabelStyle: pixelTextStyle(fontSize: 10),
-        unselectedLabelStyle: pixelTextStyle(fontSize: 8),
+        selectedLabelStyle: pixelTextStyle(fontSize: 10, color: accentGold),
+        unselectedLabelStyle: pixelTextStyle(fontSize: 8, color: textSecondary),
       ),
 
       // Icon theme
