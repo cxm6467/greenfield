@@ -28,13 +28,15 @@ class QuestRepositoryWeb implements QuestRepository {
     }
 
     // Start initialization once and share the Future with all callers.
-    _initializationFuture = initializeQuestsFromSeed().then((_) {
-      _initialized = true;
-    }).catchError((error, stackTrace) {
-      // Allow retry on next call if initialization failed.
-      _initializationFuture = null;
-      throw error;
-    });
+    _initializationFuture = initializeQuestsFromSeed()
+        .then((_) {
+          _initialized = true;
+        })
+        .catchError((error, stackTrace) {
+          // Allow retry on next call if initialization failed.
+          _initializationFuture = null;
+          throw error;
+        });
 
     return _initializationFuture!;
   }
