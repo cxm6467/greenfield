@@ -140,7 +140,8 @@ class QuestModel {
       recurrenceRule: map['recurrence_rule'] as String?,
       acceptedAt: _dbTimestampToIsoString(map['accepted_at']),
       completedAt: _dbTimestampToIsoString(map['completed_at']),
-      createdAt: _dbTimestampToIsoString(map['created_at']) ??
+      createdAt:
+          _dbTimestampToIsoString(map['created_at']) ??
           DateTime.now().toIso8601String(),
     );
   }
@@ -182,7 +183,9 @@ class QuestModel {
       return DateTime.fromMillisecondsSinceEpoch(value).toIso8601String();
     }
     if (value is num) {
-      return DateTime.fromMillisecondsSinceEpoch(value.toInt()).toIso8601String();
+      return DateTime.fromMillisecondsSinceEpoch(
+        value.toInt(),
+      ).toIso8601String();
     }
     if (value is String) {
       // Assume it is already an ISO-8601 string.
