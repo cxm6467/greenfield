@@ -11,14 +11,32 @@ class QuestRepositoryWeb implements QuestRepository {
   final Logger logger;
   final List<Quest> _quests = [];
   bool _initialized = false;
+  Future<void>? _initializationFuture;
 
   QuestRepositoryWeb({Logger? logger}) : logger = logger ?? Logger();
 
-  Future<void> _ensureInitialized() async {
-    if (!_initialized) {
-      await initializeQuestsFromSeed();
-      _initialized = true;
+  Future<void> _ensureInitialized() {
+    if (_initialized) {
+      // Already initialized; return a completed Future.
+      return Future.value();
     }
+
+    // If initialization is already in progress, return the same Future.
+    final existingFuture = _initializationFuture;
+    if (existingFuture != null) {
+      return existingFuture;
+    }
+
+    // Start initialization once and share the Future with all callers.
+    _initializationFuture = initializeQuestsFromSeed().then((_) {
+      _initialized = true;
+    }).catchError((error, stackTrace) {
+      // Allow retry on next call if initialization failed.
+      _initializationFuture = null;
+      throw error;
+    });
+
+    return _initializationFuture!;
   }
 
   @override
