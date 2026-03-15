@@ -12,7 +12,6 @@ import '../../widgets/character/pixel_art_avatar.dart';
 import '../settings/admin_settings_screen.dart';
 import '../achievements/achievements_screen.dart';
 import '../shop/cosmetic_shop_screen.dart';
-import '../mini_games/mini_game_launcher.dart';
 import 'quest_detail_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -79,16 +78,10 @@ class HomeScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 24),
 
-            // Game navigation buttons
+            // Shop & Achievements buttons
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildNavButton(context, '🎮', 'GAMES', () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const MiniGameLauncher()),
-                  );
-                }),
                 _buildNavButton(context, '🏆', 'ACHIEVEMENTS', () {
                   Navigator.push(
                     context,

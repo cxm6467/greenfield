@@ -4,9 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/config/theme_config.dart';
 import '../../../core/di/injection.dart';
 import '../../../core/di/injection_names.dart';
+import '../../../domain/entities/mini_game.dart';
 import '../../../domain/entities/quest.dart';
 import '../../../domain/repositories/quest_repository.dart';
 import '../../providers/quest_provider.dart';
+import '../mini_games/mini_game_launcher.dart';
 
 class QuestDetailScreen extends ConsumerStatefulWidget {
   final String questId;
@@ -80,23 +82,51 @@ class _QuestDetailScreenState extends ConsumerState<QuestDetailScreen> {
     if (_quest == null || !_quest!.isActive) return;
 
     try {
-      // Toggle the objective
       final objective = _quest!.objectives[index];
       if (!objective.completed) {
-        await ref.read(questActionsProvider).updateQuestObjectives(
-          widget.questId,
-          [index],
-        );
-        await _loadQuest();
-
+        // Always trigger a mini-game for quest objective completion
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Objective completed!'),
-              backgroundColor: Colors.green,
-              duration: Duration(seconds: 1),
+          final result = await Navigator.push<MiniGameResult?>(
+            context,
+            MaterialPageRoute(
+              builder: (_) => MiniGameLauncher(
+                onGameComplete: (_) {}, // Not used in this context
+                autoClose: true,
+              ),
             ),
           );
+
+          // Only complete objective if game was won
+          if (result != null && result.won) {
+            await ref.read(questActionsProvider).updateQuestObjectives(
+              widget.questId,
+              [index],
+            );
+            await _loadQuest();
+
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Objective completed!'),
+                  backgroundColor: Colors.green,
+                  duration: Duration(seconds: 1),
+                ),
+              );
+            }
+          } else {
+            // Game was lost or closed
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                    'Try again! Complete the mini-game to finish this objective.',
+                  ),
+                  backgroundColor: Colors.orange,
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            }
+          }
         }
       }
     } catch (e) {

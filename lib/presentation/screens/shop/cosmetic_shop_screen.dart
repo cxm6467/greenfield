@@ -175,21 +175,14 @@ class CosmeticShopScreen extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      SizedBox(
-                        width: 80,
-                        child: ElevatedButton(
-                          onPressed: canAfford
-                              ? () => _purchaseItem(
-                                  context,
-                                  ref,
-                                  item,
-                                  currentGems,
-                                )
-                              : null,
-                          child: const Text(
-                            'BUY',
-                            style: TextStyle(fontSize: 12),
-                          ),
+                      ElevatedButton(
+                        onPressed: canAfford
+                            ? () =>
+                                  _purchaseItem(context, ref, item, currentGems)
+                            : null,
+                        child: const Text(
+                          'BUY',
+                          style: TextStyle(fontSize: 12),
                         ),
                       ),
                     ],
