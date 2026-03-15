@@ -298,12 +298,11 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
 
   Widget _buildFeatureRow(BuildContext context, String emoji, String text) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(emoji, style: const TextStyle(fontSize: 24)),
         const SizedBox(width: 12),
-        Expanded(
-          child: Text(text, style: Theme.of(context).textTheme.bodyLarge),
-        ),
+        Text(text, style: Theme.of(context).textTheme.bodyLarge),
       ],
     );
   }
