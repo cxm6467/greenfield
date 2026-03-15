@@ -7,6 +7,7 @@ import '../../../core/di/injection_names.dart';
 import '../../../domain/entities/mini_game.dart';
 import '../../../domain/entities/quest.dart';
 import '../../../domain/repositories/quest_repository.dart';
+import '../../providers/mini_game_provider.dart';
 import '../../providers/quest_provider.dart';
 import '../mini_games/mini_game_launcher.dart';
 
@@ -102,14 +103,20 @@ class _QuestDetailScreenState extends ConsumerState<QuestDetailScreen> {
               widget.questId,
               [index],
             );
+
+            // Award gems for winning the mini-game
+            ref.read(gemsProvider.notifier).addGems(result.gemsEarned);
+
             await _loadQuest();
 
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Objective completed!'),
+                SnackBar(
+                  content: Text(
+                    'Objective completed! +${result.gemsEarned} 💎',
+                  ),
                   backgroundColor: Colors.green,
-                  duration: Duration(seconds: 1),
+                  duration: const Duration(seconds: 1),
                 ),
               );
             }
