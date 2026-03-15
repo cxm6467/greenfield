@@ -51,18 +51,16 @@ class _SetupWizardScreenState extends ConsumerState<SetupWizardScreen> {
 
           // Step content
           Expanded(
-            child: SingleChildScrollView(
-              child: IndexedStack(
-                index: state.currentStep,
-                children: const [
-                  WelcomeStep(),
-                  AiProviderStep(),
-                  ChatIntegrationsStep(),
-                  FeatureFlagsStep(),
-                  GameSettingsStep(),
-                  ReviewStep(),
-                ],
-              ),
+            child: IndexedStack(
+              index: state.currentStep,
+              children: const [
+                WelcomeStep(),
+                AiProviderStep(),
+                ChatIntegrationsStep(),
+                FeatureFlagsStep(),
+                GameSettingsStep(),
+                ReviewStep(),
+              ],
             ),
           ),
 
