@@ -9,6 +9,7 @@ import '../../providers/character_provider.dart';
 import '../../providers/quest_provider.dart';
 import '../../providers/quest_generation_provider.dart';
 import '../../widgets/character/pixel_art_avatar.dart';
+import '../character/character_profile_screen.dart';
 import '../settings/admin_settings_screen.dart';
 import '../achievements/achievements_screen.dart';
 import '../shop/cosmetic_shop_screen.dart';
@@ -269,53 +270,67 @@ class HomeScreen extends ConsumerWidget {
 
   Widget _buildCharacterCard(BuildContext context, character) {
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                PixelArtAvatar(
-                  race: character.race,
-                  characterClass: character.characterClass,
-                  size: 96,
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        character.name,
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${character.race.displayName} ${character.characterClass.displayName}',
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Level ${character.level} • ${character.currentXp}/${character.xpToNextLevel} XP',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: GreenlandsTheme.accentGold,
-                        ),
-                      ),
-                    ],
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const CharacterProfileScreen()),
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  PixelArtAvatar(
+                    race: character.race,
+                    characterClass: character.characterClass,
+                    size: 96,
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            // XP Progress bar
-            LinearProgressIndicator(
-              value: character.currentXp / character.xpToNextLevel,
-              backgroundColor: Colors.grey[800],
-              color: GreenlandsTheme.accentGold,
-              minHeight: 8,
-            ),
-          ],
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          character.name,
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${character.race.displayName} ${character.characterClass.displayName}',
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Level ${character.level} • ${character.currentXp}/${character.xpToNextLevel} XP',
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: GreenlandsTheme.accentGold),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              // XP Progress bar
+              LinearProgressIndicator(
+                value: character.currentXp / character.xpToNextLevel,
+                backgroundColor: Colors.grey[800],
+                color: GreenlandsTheme.accentGold,
+                minHeight: 8,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'TAP TO VIEW FULL PROFILE',
+                style: Theme.of(
+                  context,
+                ).textTheme.labelSmall?.copyWith(color: Colors.grey[500]),
+              ),
+            ],
+          ),
         ),
       ),
     );
