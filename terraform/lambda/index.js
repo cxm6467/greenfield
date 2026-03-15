@@ -189,9 +189,9 @@ exports.handler = async (event) => {
   }
 
   // Route to appropriate handler
-  if (path === "/api/claude/health" && method === "GET") {
+  if (path === "/api/ai/health" && method === "GET") {
     return await handleHealth();
-  } else if (path === "/api/claude/messages" && method === "POST") {
+  } else if (path === "/api/ai/messages" && method === "POST") {
     return await handleMessages(event);
   } else {
     return {

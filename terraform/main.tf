@@ -287,7 +287,7 @@ resource "aws_cloudfront_distribution" "web" {
 
   # Cache behavior: API routes
   ordered_cache_behavior {
-    path_pattern     = "/api/claude/*"
+    path_pattern     = "/api/ai/*"
     allowed_methods  = ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"]
     cached_methods   = ["GET", "HEAD"]
     target_origin_id = "api_gateway"

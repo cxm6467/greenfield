@@ -83,7 +83,7 @@
 
 ### Build Job (always runs, after test passes)
 ```yaml
-- flutter build web --release --dart-define="AI_PROXY_URL=https://greenfield.chrismarasco.io/api/claude"
+- flutter build web --release --dart-define="AI_PROXY_URL=https://greenfield.chrismarasco.io/api/ai"
 - Upload build artifacts to GitHub (5 day retention)
 ```
 

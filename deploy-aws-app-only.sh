@@ -32,7 +32,7 @@ echo ""
 echo -e "${BLUE}Building Flutter web app...${NC}"
 ~/flutter/bin/flutter build web \
   --release \
-  --dart-define="AI_PROXY_URL=${CLOUDFRONT_URL}/api/claude" > /dev/null 2>&1
+  --dart-define="AI_PROXY_URL=${CLOUDFRONT_URL}/api/ai" > /dev/null 2>&1
 echo -e "${GREEN}✓ Web app built${NC}"
 echo ""
 

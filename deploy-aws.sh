@@ -184,7 +184,7 @@ print_header "Step 4: Building Flutter web app"
 print_step "Building Flutter for production..."
 ~/flutter/bin/flutter build web \
   --release \
-  --dart-define="AI_PROXY_URL=${CLOUDFRONT_URL}/api/claude" > /dev/null 2>&1
+  --dart-define="AI_PROXY_URL=${CLOUDFRONT_URL}/api/ai" > /dev/null 2>&1
 print_success "Web app built"
 
 echo ""

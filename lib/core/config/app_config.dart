@@ -21,7 +21,7 @@ class AppConfig {
 
   // Proxy URL (works for both Claude and Bedrock)
   // Local development: http://localhost:3001
-  // Production: https://your-project.web.app/api/claude (set via .env)
+  // Production: https://your-project.web.app/api/ai (set via .env)
   static String aiProxyUrl = 'http://localhost:3001';
 
   // Multi-Chat MCP Server

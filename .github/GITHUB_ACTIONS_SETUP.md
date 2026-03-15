@@ -120,7 +120,7 @@ CloudFront cache is automatically invalidated on each deployment, so changes are
 To test the build locally with the same dart-define flags:
 
 ```bash
-flutter build web --release --dart-define="AI_PROXY_URL=https://greenfield.chrismarasco.io/api/claude"
+flutter build web --release --dart-define="AI_PROXY_URL=https://greenfield.chrismarasco.io/api/ai"
 ```
 
 ## Security Notes
