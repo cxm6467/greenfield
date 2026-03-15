@@ -4,8 +4,9 @@ import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:logger/logger.dart';
-import 'package:greenlands/domain/entities/quest.dart';
-import 'package:greenlands/domain/entities/character.dart';
+import 'package:greenfield/domain/entities/quest.dart';
+import 'package:greenfield/domain/entities/character.dart';
+import 'package:greenfield/core/config/app_config.dart';
 
 class QuestGenerationService {
   final Dio _dio;
@@ -31,16 +32,6 @@ class QuestGenerationService {
     required CharacterClass characterClass,
     List<Quest>? completedQuests,
   }) async {
-    // Security: Prevent API calls from web to avoid exposing API key
-    if (kIsWeb) {
-      const errorMsg =
-          'Quest generation is not available on web builds. '
-          'This feature requires server-side API calls to protect your API key. '
-          'Please use the mobile or desktop app to generate quests.';
-      _logger.w(errorMsg);
-      throw UnsupportedError(errorMsg);
-    }
-
     final prompt = _buildPrompt(
       playerLevel: playerLevel,
       characterName: characterName,
@@ -52,14 +43,33 @@ class QuestGenerationService {
     try {
       _logger.i('Generating quest for $characterName (Level $playerLevel)...');
 
+      // Determine API endpoint based on platform
+      final String apiUrl;
+      final Map<String, String> headers;
+
+      if (kIsWeb) {
+        // Use proxy on web to avoid CORS and protect API key
+        // Proxy URL can point to local (http://localhost:3001) or Firebase (/api/claude)
+        apiUrl = '${AppConfig.aiProxyUrl}/messages';
+        headers = {
+          'content-type': 'application/json',
+        };
+        _logger.i('Using proxy server for web platform: $apiUrl');
+      } else {
+        // Direct API call on mobile/desktop
+        apiUrl = 'https://api.anthropic.com/v1/messages';
+        headers = {
+          'x-api-key': _apiKey,
+          'anthropic-version': '2023-06-01',
+          'content-type': 'application/json',
+        };
+        _logger.i('Using direct API for non-web platform');
+      }
+
       final response = await _dio.post(
-        'https://api.anthropic.com/v1/messages',
+        apiUrl,
         options: Options(
-          headers: {
-            'x-api-key': _apiKey,
-            'anthropic-version': '2023-06-01',
-            'content-type': 'application/json',
-          },
+          headers: headers,
         ),
         data: {
           'model': _model,

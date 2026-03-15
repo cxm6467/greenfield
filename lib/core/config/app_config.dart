@@ -7,9 +7,20 @@ class AppConfig {
   static final _logger = Logger();
   static SettingsStorageService? _settingsStorage;
 
+  // AI Provider Configuration
+  static String aiProvider = 'claude'; // 'claude' or 'bedrock'
+
   // Anthropic Claude API
   static String claudeApiKey = '';
   static String claudeModel = 'claude-3-5-sonnet-20241022';
+
+  // AWS Bedrock Configuration
+  static String bedrockModel = 'anthropic.claude-3-haiku-20240307-v1:0'; // Claude 3 Haiku via Bedrock (cheapest)
+
+  // Proxy URL (works for both Claude and Bedrock)
+  // Local development: http://localhost:3001
+  // Production: https://your-project.web.app/api/claude (set via .env)
+  static String aiProxyUrl = 'http://localhost:3001';
 
   // Multi-Chat MCP Server
   static String mcpServerUrl = 'http://localhost:3000';
@@ -50,6 +61,10 @@ class AppConfig {
 
       // Priority: Stored settings > .env > defaults
 
+      // Load AI Provider configuration
+      aiProvider =
+          dotenv.env['AI_PROVIDER'] ?? 'claude';
+
       // Load API keys (stored > .env > default)
       final storedClaudeApiKey = _settingsStorage != null
           ? await _settingsStorage!.getClaudeApiKey()
@@ -59,6 +74,11 @@ class AppConfig {
           _settingsStorage?.getClaudeModel() ??
           dotenv.env['CLAUDE_MODEL'] ??
           'claude-3-5-sonnet-20241022';
+      bedrockModel =
+          dotenv.env['BEDROCK_MODEL'] ??
+          'anthropic.claude-3-sonnet-20240229-v1:0';
+      aiProxyUrl =
+          dotenv.env['AI_PROXY_URL'] ?? 'http://localhost:3001';
 
       // Load MCP Server config
       mcpServerUrl =
@@ -157,8 +177,10 @@ class AppConfig {
   static String getConfigSummary() {
     return '''
     === The Greenlands Configuration ===
-    Claude Model: $claudeModel
-    Claude API Key: ${claudeApiKey.isNotEmpty ? "✓ Set" : "✗ Not set"}
+    AI Provider: $aiProvider
+    ${aiProvider == 'claude' ? 'Claude Model: $claudeModel' : 'Bedrock Model: $bedrockModel'}
+    ${aiProvider == 'claude' ? 'Claude API Key: ${claudeApiKey.isNotEmpty ? "✓ Set" : "✗ Not set"}' : 'AWS Bedrock: (configured via proxy)'}
+    AI Proxy URL: $aiProxyUrl
     MCP Server URL: $mcpServerUrl
 
     Feature Flags:
