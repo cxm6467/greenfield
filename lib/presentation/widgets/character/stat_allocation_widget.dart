@@ -14,7 +14,7 @@ class StatAllocationWidget extends ConsumerStatefulWidget {
 class _StatAllocationWidgetState extends ConsumerState<StatAllocationWidget> {
   final Map<String, int> _allocations = {
     'strength': 0,
-    'agility': 0,
+    'dexterity': 0,
     'wisdom': 0,
     'constitution': 0,
   };
@@ -25,30 +25,22 @@ class _StatAllocationWidgetState extends ConsumerState<StatAllocationWidget> {
       _allocations.values.fold(0, (sum, val) => sum + val);
   int get _remainingPoints => maxPoints - _totalAllocated;
 
-  /// Get bonus for a stat, mapping dexterity → agility
+  /// Get bonus for a stat from race and class
   int _getBonusFor(String stat) {
     final state = ref.read(characterCreationProvider);
-    final bonuses = <String, int>{};
+    int bonus = 0;
 
-    // Collect racial bonuses
+    // Add racial bonuses
     if (state.race != null) {
-      state.race!.statBonuses.forEach((key, value) {
-        bonuses[key] = (bonuses[key] ?? 0) + value;
-      });
+      bonus += state.race!.statBonuses[stat] ?? 0;
     }
 
-    // Collect class bonuses
+    // Add class bonuses
     if (state.characterClass != null) {
-      state.characterClass!.statBonuses.forEach((key, value) {
-        bonuses[key] = (bonuses[key] ?? 0) + value;
-      });
+      bonus += state.characterClass!.statBonuses[stat] ?? 0;
     }
 
-    if (stat == 'agility') {
-      // Agility gets bonuses from both 'agility' and 'dexterity' keys
-      return (bonuses['agility'] ?? 0) + (bonuses['dexterity'] ?? 0);
-    }
-    return bonuses[stat] ?? 0;
+    return bonus;
   }
 
   @override
@@ -124,9 +116,9 @@ class _StatAllocationWidgetState extends ConsumerState<StatAllocationWidget> {
                 const SizedBox(height: 12),
                 _buildStatRow(
                   context,
-                  'Agility',
+                  'Dexterity',
                   '🏃',
-                  'agility',
+                  'dexterity',
                   'Speed, reflexes, and ranged accuracy',
                 ),
                 const SizedBox(height: 12),
