@@ -22,14 +22,14 @@ class FlappyBirdGame extends StatefulWidget {
 class _FlappyBirdGameState extends State<FlappyBirdGame>
     with TickerProviderStateMixin {
   late AnimationController _gameController;
-  double birdY = 0.5;
+  double birdY = 0.2; // Start higher, in the safe zone
   double birdVelocity = 0;
   int score = 0;
   bool isGameOver = false;
   List<double> pipePositions = [2.0];
   final double birdSize = 40;
   final double pipeWidth = 60;
-  final double gapSize = 150;
+  final double gapSize = 200; // Larger gap for easier play
   final double gravity = 0.4;
 
   @override
