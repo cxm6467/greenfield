@@ -66,78 +66,86 @@ class AppConfig {
       }
 
       // Priority: Stored settings > .env > defaults
+      // Helper to safely get env vars (avoid dotenv errors on web)
+      String? getEnvVar(String key) {
+        try {
+          return kIsWeb ? null : dotenv.env[key];
+        } catch (e) {
+          _logger.w('Failed to read env var $key: $e');
+          return null;
+        }
+      }
 
       // Load AI Provider configuration
-      aiProvider =
-          dotenv.env['AI_PROVIDER'] ?? 'claude';
+      aiProvider = getEnvVar('AI_PROVIDER') ?? 'claude';
 
       // Load API keys (stored > .env > default)
       final storedClaudeApiKey = _settingsStorage != null
           ? await _settingsStorage!.getClaudeApiKey()
           : null;
-      claudeApiKey = storedClaudeApiKey ?? dotenv.env['CLAUDE_API_KEY'] ?? '';
+      claudeApiKey = storedClaudeApiKey ?? getEnvVar('CLAUDE_API_KEY') ?? '';
       claudeModel =
           _settingsStorage?.getClaudeModel() ??
-          dotenv.env['CLAUDE_MODEL'] ??
+          getEnvVar('CLAUDE_MODEL') ??
           'claude-3-5-sonnet-20241022';
       bedrockModel =
-          dotenv.env['BEDROCK_MODEL'] ??
+          getEnvVar('BEDROCK_MODEL') ??
           'anthropic.claude-3-sonnet-20240229-v1:0';
       aiProxyUrl =
-          dotenv.env['AI_PROXY_URL'] ?? 'http://localhost:3001';
+          getEnvVar('AI_PROXY_URL') ?? 'http://localhost:3001';
 
       // Load MCP Server config
       mcpServerUrl =
           _settingsStorage?.getMcpServerUrl() ??
-          dotenv.env['MCP_SERVER_URL'] ??
+          getEnvVar('MCP_SERVER_URL') ??
           'http://localhost:3000';
       final storedGoogleChatWebhook = _settingsStorage != null
           ? await _settingsStorage!.getGoogleChatWebhook()
           : null;
       googleChatWebhookUrl =
           storedGoogleChatWebhook ??
-          dotenv.env['GOOGLE_CHAT_WEBHOOK_URL'] ??
+          getEnvVar('GOOGLE_CHAT_WEBHOOK_URL') ??
           '';
       final storedDiscordBotToken = _settingsStorage != null
           ? await _settingsStorage!.getDiscordBotToken()
           : null;
       discordBotToken =
-          storedDiscordBotToken ?? dotenv.env['DISCORD_BOT_TOKEN'] ?? '';
+          storedDiscordBotToken ?? getEnvVar('DISCORD_BOT_TOKEN') ?? '';
       slackAppToken =
           await _settingsStorage?.getSlackAppToken() ??
-          dotenv.env['SLACK_APP_TOKEN'] ??
+          getEnvVar('SLACK_APP_TOKEN') ??
           '';
 
       // Load feature flags
       enableQuestGeneration =
           _settingsStorage?.getEnableQuestGeneration() ??
-          _parseBool(dotenv.env['ENABLE_QUEST_GENERATION'], true);
+          _parseBool(getEnvVar('ENABLE_QUEST_GENERATION'), true);
       enableChatBots =
           _settingsStorage?.getEnableChatBots() ??
-          _parseBool(dotenv.env['ENABLE_CHAT_BOTS'], false);
+          _parseBool(getEnvVar('ENABLE_CHAT_BOTS'), false);
       enableNotifications =
           _settingsStorage?.getEnableNotifications() ??
-          _parseBool(dotenv.env['ENABLE_NOTIFICATIONS'], true);
+          _parseBool(getEnvVar('ENABLE_NOTIFICATIONS'), true);
       enableRecurringEvents =
           _settingsStorage?.getEnableRecurringEvents() ??
-          _parseBool(dotenv.env['ENABLE_RECURRING_EVENTS'], true);
+          _parseBool(getEnvVar('ENABLE_RECURRING_EVENTS'), true);
 
       // Load game config
       maxFellowshipSize =
           _settingsStorage?.getMaxFellowshipSize() ??
-          int.tryParse(dotenv.env['MAX_FELLOWSHIP_SIZE'] ?? '8') ??
+          int.tryParse(getEnvVar('MAX_FELLOWSHIP_SIZE') ?? '8') ??
           8;
       xpMultiplier =
           _settingsStorage?.getXpMultiplier() ??
-          double.tryParse(dotenv.env['XP_MULTIPLIER'] ?? '1.0') ??
+          double.tryParse(getEnvVar('XP_MULTIPLIER') ?? '1.0') ??
           1.0;
       dailyQuestResetHour =
           _settingsStorage?.getDailyQuestResetHour() ??
-          int.tryParse(dotenv.env['DAILY_QUEST_RESET_HOUR'] ?? '0') ??
+          int.tryParse(getEnvVar('DAILY_QUEST_RESET_HOUR') ?? '0') ??
           0;
       debugMode =
           _settingsStorage?.getDebugMode() ??
-          _parseBool(dotenv.env['DEBUG_MODE'], true);
+          _parseBool(getEnvVar('DEBUG_MODE'), true);
 
       _logger.i('App configuration loaded successfully');
       _logger.i(
