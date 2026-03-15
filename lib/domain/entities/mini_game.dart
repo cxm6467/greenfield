@@ -1,4 +1,14 @@
-enum MiniGameType { ringToss, memoryMatch, diceRoll, archery }
+enum MiniGameType {
+  ringToss,
+  memoryMatch,
+  diceRoll,
+  whackAMole,
+  simonSays,
+  flappyBird,
+  coinCollector,
+  patternMatch,
+  speedClicker,
+}
 
 enum MiniGameTheme {
   goblin,
@@ -64,8 +74,18 @@ extension MiniGameTypeExt on MiniGameType {
         return 'Memory Match';
       case MiniGameType.diceRoll:
         return 'Dice Roll';
-      case MiniGameType.archery:
-        return 'Archery';
+      case MiniGameType.whackAMole:
+        return 'Whack-a-Mole';
+      case MiniGameType.simonSays:
+        return 'Simon Says';
+      case MiniGameType.flappyBird:
+        return 'Flappy Bird';
+      case MiniGameType.coinCollector:
+        return 'Coin Collector';
+      case MiniGameType.patternMatch:
+        return 'Pattern Match';
+      case MiniGameType.speedClicker:
+        return 'Speed Clicker';
     }
   }
 
@@ -77,8 +97,18 @@ extension MiniGameTypeExt on MiniGameType {
         return '🎴';
       case MiniGameType.diceRoll:
         return '🎲';
-      case MiniGameType.archery:
-        return '🏹';
+      case MiniGameType.whackAMole:
+        return '🔨';
+      case MiniGameType.simonSays:
+        return '🎮';
+      case MiniGameType.flappyBird:
+        return '🐦';
+      case MiniGameType.coinCollector:
+        return '🪙';
+      case MiniGameType.patternMatch:
+        return '🧩';
+      case MiniGameType.speedClicker:
+        return '⚡';
     }
   }
 }

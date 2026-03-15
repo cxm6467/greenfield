@@ -48,7 +48,12 @@ MiniGameTheme _selectThemeForGame(MiniGameType gameType) {
     MiniGameType.ringToss: [MiniGameTheme.goblin, MiniGameTheme.elf],
     MiniGameType.memoryMatch: [MiniGameTheme.undead, MiniGameTheme.wizard],
     MiniGameType.diceRoll: [MiniGameTheme.tavern, MiniGameTheme.warrior],
-    MiniGameType.archery: [MiniGameTheme.ranger, MiniGameTheme.dragon],
+    MiniGameType.whackAMole: [MiniGameTheme.goblin, MiniGameTheme.warrior],
+    MiniGameType.simonSays: [MiniGameTheme.wizard, MiniGameTheme.undead],
+    MiniGameType.flappyBird: [MiniGameTheme.elf, MiniGameTheme.ranger],
+    MiniGameType.coinCollector: [MiniGameTheme.tavern, MiniGameTheme.dragon],
+    MiniGameType.patternMatch: [MiniGameTheme.wizard, MiniGameTheme.elf],
+    MiniGameType.speedClicker: [MiniGameTheme.warrior, MiniGameTheme.dragon],
   };
 
   final themes = themeMap[gameType] ?? [MiniGameTheme.wizard];
