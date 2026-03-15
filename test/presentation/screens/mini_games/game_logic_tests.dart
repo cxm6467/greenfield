@@ -200,7 +200,6 @@ void main() {
     });
   });
 
-
   group('Quest objective completion', () {
     test('objective marked complete on game win', () {
       final result = MiniGameResult.win(
