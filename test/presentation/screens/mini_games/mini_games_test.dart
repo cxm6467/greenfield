@@ -4,14 +4,6 @@ import 'package:greenfield/domain/entities/mini_game.dart';
 
 void main() {
   group('Mini-game widget types', () {
-    test('FlappyBird widget is StatefulWidget', () {
-      // Verify the game can be instantiated
-      expect(() {
-        // Just creating the widget to verify constructor works
-        MaterialApp(home: Scaffold(body: Container()));
-      }, isA<Function>());
-    });
-
     test('all game types have display names', () {
       for (final gameType in MiniGameType.values) {
         expect(gameType.displayName, isNotEmpty);
