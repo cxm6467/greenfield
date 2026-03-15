@@ -200,22 +200,6 @@ void main() {
     });
   });
 
-  group('Mini-game bypass mechanics', () {
-    test('bypass chance is 10%', () {
-      const bypassPercentage = 10;
-      expect(bypassPercentage, equals(10));
-    });
-
-    test('bypass success completes objective without gems', () {
-      // Bypass = objective complete but no gem reward
-      expect(true, isTrue);
-    });
-
-    test('bypass failure triggers mini-game normally', () {
-      // Non-bypass = mini-game plays normally
-      expect(true, isTrue);
-    });
-  });
 
   group('Quest objective completion', () {
     test('objective marked complete on game win', () {
