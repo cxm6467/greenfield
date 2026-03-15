@@ -99,24 +99,24 @@ data "archive_file" "lambda_zip" {
 }
 
 resource "aws_lambda_function" "proxy" {
-  filename         = data.archive_file.lambda_zip.output_path
+  filename      = data.archive_file.lambda_zip.output_path
+  function_name = "${var.app_name}-proxy-${var.environment}"
+  role          = aws_iam_role.lambda_role.arn
+  handler       = "index.handler"
+  runtime       = "nodejs18.x"
+  timeout       = 30
+
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
-  function_name    = "${var.app_name}-proxy-${var.environment}"
-  role             = aws_iam_role.lambda_role.arn
-  handler          = "index.handler"
-  runtime          = "nodejs18.x"
-  timeout          = 30
-  memory_size      = 256
 
   environment {
     variables = {
-      SSM_PARAM_NAME = aws_ssm_parameter.bedrock_api_key.name
-      BEDROCK_MODEL  = var.bedrock_model
+      BEDROCK_API_KEY_PARAM = aws_ssm_parameter.bedrock_api_key.name
+      BEDROCK_MODEL         = var.bedrock_model
     }
   }
 
   tags = {
-    Name        = "${var.app_name}-proxy"
+    Name        = "${var.app_name}-lambda"
     Environment = var.environment
   }
 }
@@ -130,12 +130,11 @@ resource "aws_apigatewayv2_api" "proxy" {
   protocol_type = "HTTP"
 
   cors_configuration {
-    allow_origins     = ["*"]
-    allow_methods     = ["GET", "POST", "OPTIONS"]
-    allow_headers     = ["*"]
-    expose_headers    = ["*"]
-    max_age           = 300
-    credentials_allowed = false
+    allow_origins  = ["*"]
+    allow_methods  = ["GET", "POST", "OPTIONS"]
+    allow_headers  = ["*"]
+    expose_headers = ["*"]
+    max_age        = 300
   }
 
   tags = {
@@ -146,30 +145,17 @@ resource "aws_apigatewayv2_api" "proxy" {
 
 # Integration between API Gateway and Lambda
 resource "aws_apigatewayv2_integration" "lambda" {
-  api_id           = aws_apigatewayv2_api.proxy.id
-  integration_type = "AWS_PROXY"
+  api_id             = aws_apigatewayv2_api.proxy.id
+  integration_type   = "AWS_PROXY"
   integration_method = "POST"
   payload_format_version = "2.0"
-  target_uri = aws_lambda_function.proxy.invoke_arn
+  integration_uri    = aws_lambda_function.proxy.invoke_arn
 }
 
-# Routes
-resource "aws_apigatewayv2_route" "health" {
+# Route
+resource "aws_apigatewayv2_route" "proxy" {
   api_id    = aws_apigatewayv2_api.proxy.id
-  route_key = "GET /api/claude/health"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
-}
-
-resource "aws_apigatewayv2_route" "messages" {
-  api_id    = aws_apigatewayv2_api.proxy.id
-  route_key = "POST /api/claude/messages"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
-}
-
-# Catch-all for OPTIONS (preflight)
-resource "aws_apigatewayv2_route" "options" {
-  api_id    = aws_apigatewayv2_api.proxy.id
-  route_key = "$default"
+  route_key = "POST /claude"
   target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
 }
 
@@ -178,10 +164,6 @@ resource "aws_apigatewayv2_stage" "default" {
   api_id      = aws_apigatewayv2_api.proxy.id
   name        = "$default"
   auto_deploy = true
-
-  default_route_settings {
-    logging_level = "ERROR"
-  }
 }
 
 # Lambda permission for API Gateway
@@ -194,11 +176,12 @@ resource "aws_lambda_permission" "api_gateway" {
 }
 
 # ============================================
-# S3 Bucket for Static Web Assets
+# S3 Bucket for Web Assets
 # ============================================
 
 resource "aws_s3_bucket" "web" {
-  bucket = "${var.app_name}-web-${var.environment}-${data.aws_caller_identity.current.account_id}"
+  bucket              = "${var.app_name}-web-${var.environment}-${data.aws_caller_identity.current.account_id}"
+  object_lock_enabled = false
 
   tags = {
     Name        = "${var.app_name}-web"
@@ -206,7 +189,7 @@ resource "aws_s3_bucket" "web" {
   }
 }
 
-# Block public access
+# Disable public access
 resource "aws_s3_bucket_public_access_block" "web" {
   bucket = aws_s3_bucket.web.id
 
@@ -216,15 +199,22 @@ resource "aws_s3_bucket_public_access_block" "web" {
   restrict_public_buckets = true
 }
 
-# CloudFront Origin Access Control (OAC)
+# ============================================
+# CloudFront Origin Access Control
+# ============================================
+
 resource "aws_cloudfront_origin_access_control" "s3_oac" {
   name                              = "${var.app_name}-s3-oac"
+  description                       = "OAC for S3 bucket access"
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
   signing_protocol                  = "sigv4"
 }
 
-# S3 bucket policy - allow CloudFront access only
+# ============================================
+# S3 Bucket Policy (CloudFront Access)
+# ============================================
+
 resource "aws_s3_bucket_policy" "web" {
   bucket = aws_s3_bucket.web.id
 
@@ -241,7 +231,7 @@ resource "aws_s3_bucket_policy" "web" {
         Resource = "${aws_s3_bucket.web.arn}/*"
         Condition = {
           StringEquals = {
-            "AWS:SourceArn" = aws_cloudfront_distribution.web.arn
+            "AWS:SourceArn" = "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/${aws_cloudfront_distribution.web.id}"
           }
         }
       }
@@ -254,13 +244,20 @@ resource "aws_s3_bucket_policy" "web" {
 # ============================================
 
 resource "aws_cloudfront_distribution" "web" {
-  enabled = true
-  is_ipv6_enabled = true
+  enabled             = true
+  is_ipv6_enabled     = true
   default_root_object = "index.html"
 
-  # Origin 1: API Gateway
+  # Origin 1: S3
   origin {
-    domain_name = replace(aws_apigatewayv2_api.proxy.api_endpoint, "/^https?://([^/]*).*/", "$1")
+    domain_name            = aws_s3_bucket.web.bucket_regional_domain_name
+    origin_id              = "s3"
+    origin_access_control_id = aws_cloudfront_origin_access_control.s3_oac.id
+  }
+
+  # Origin 2: API Gateway
+  origin {
+    domain_name = replace(aws_apigatewayv2_api.proxy.api_endpoint, "https://", "")
     origin_id   = "api_gateway"
 
     custom_origin_config {
@@ -271,101 +268,28 @@ resource "aws_cloudfront_distribution" "web" {
     }
   }
 
-  # Origin 2: S3
-  origin {
-    domain_name            = aws_s3_bucket.web.bucket_regional_domain_name
-    origin_id              = "s3"
-    origin_access_control_id = aws_cloudfront_origin_access_control.s3_oac.id
-  }
-
-  # Default behavior: S3 (static content)
+  # Default cache behavior: S3 (static content)
   default_cache_behavior {
-    allowed_methods  = ["GET", "HEAD"]
+    allowed_methods  = ["GET", "HEAD", "OPTIONS"]
     cached_methods   = ["GET", "HEAD"]
     target_origin_id = "s3"
+    compress         = true
 
-    forwarded_values {
-      query_string = false
-
-      cookies {
-        forward = "none"
-      }
-    }
-
+    cache_policy_id = data.aws_cloudfront_cache_policy.caching_optimized.id
     viewer_protocol_policy = "redirect-to-https"
-    min_ttl                = 0
-    default_ttl            = 3600
-    max_ttl                = 86400
-    compress               = true
   }
 
-  # Cached behavior: API routes (proxy)
+  # Cache behavior: API routes
   ordered_cache_behavior {
     path_pattern     = "/api/claude/*"
-    allowed_methods  = ["GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS"]
+    allowed_methods  = ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"]
     cached_methods   = ["GET", "HEAD"]
     target_origin_id = "api_gateway"
+    compress         = true
 
-    forwarded_values {
-      query_string = true
-      headers {
-        header_names = ["*"]
-      }
-
-      cookies {
-        forward = "all"
-      }
-    }
-
+    cache_policy_id = data.aws_cloudfront_cache_policy.caching_disabled.id
+    origin_request_policy_id = data.aws_cloudfront_origin_request_policy.all_viewer.id
     viewer_protocol_policy = "redirect-to-https"
-    min_ttl                = 0
-    default_ttl            = 0
-    max_ttl                = 0
-    compress               = true
-  }
-
-  # SPA catch-all: /index.html
-  ordered_cache_behavior {
-    path_pattern     = "*.html"
-    allowed_methods  = ["GET", "HEAD"]
-    cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "s3"
-
-    forwarded_values {
-      query_string = false
-
-      cookies {
-        forward = "none"
-      }
-    }
-
-    viewer_protocol_policy = "redirect-to-https"
-    min_ttl                = 0
-    default_ttl            = 0
-    max_ttl                = 0
-    compress               = true
-  }
-
-  # Cache policy for static assets (JS, CSS, images)
-  ordered_cache_behavior {
-    path_pattern     = "*.@(js|css|jpg|jpeg|gif|png|svg|webp|ico)"
-    allowed_methods  = ["GET", "HEAD"]
-    cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "s3"
-
-    forwarded_values {
-      query_string = false
-
-      cookies {
-        forward = "none"
-      }
-    }
-
-    viewer_protocol_policy = "redirect-to-https"
-    min_ttl                = 0
-    default_ttl            = 31536000
-    max_ttl                = 31536000
-    compress               = true
   }
 
   restrictions {
@@ -387,8 +311,22 @@ resource "aws_cloudfront_distribution" "web" {
     Name        = "${var.app_name}-cdn"
     Environment = var.environment
   }
+}
 
-  depends_on = [aws_s3_bucket_policy.web]
+# ============================================
+# CloudFront Cache Policies (data sources)
+# ============================================
+
+data "aws_cloudfront_cache_policy" "caching_optimized" {
+  name = "Managed-CachingOptimized"
+}
+
+data "aws_cloudfront_cache_policy" "caching_disabled" {
+  name = "Managed-CachingDisabled"
+}
+
+data "aws_cloudfront_origin_request_policy" "all_viewer" {
+  name = "Managed-AllViewerExceptHostHeader"
 }
 
 # ============================================
@@ -405,19 +343,26 @@ resource "aws_acm_certificate" "domain" {
   }
 
   tags = {
-    Name        = "${var.app_name}-cert"
-    Environment = var.environment
+    Name = "${var.app_name}-cert"
   }
 }
 
 # DNS validation record
 resource "aws_route53_record" "cert_validation" {
-  count   = var.domain_name != "" ? 1 : 0
-  zone_id = var.route53_zone_id
-  name    = aws_acm_certificate.domain[0].domain_validation_options[0].resource_record_name
-  type    = aws_acm_certificate.domain[0].domain_validation_options[0].resource_record_type
-  records = [aws_acm_certificate.domain[0].domain_validation_options[0].resource_record_value]
-  ttl     = 60
+  for_each = var.domain_name != "" ? {
+    for dvo in aws_acm_certificate.domain[0].domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  } : {}
+
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = var.route53_zone_id
 }
 
 # Wait for certificate validation
@@ -432,11 +377,8 @@ resource "aws_acm_certificate_validation" "domain" {
   depends_on = [aws_route53_record.cert_validation]
 }
 
-# ============================================
 # Route 53 DNS Record (for custom domain)
-# ============================================
-
-resource "aws_route53_record" "app" {
+resource "aws_route53_record" "domain" {
   count   = var.domain_name != "" ? 1 : 0
   zone_id = var.route53_zone_id
   name    = var.domain_name
@@ -447,10 +389,12 @@ resource "aws_route53_record" "app" {
     zone_id                = aws_cloudfront_distribution.web.hosted_zone_id
     evaluate_target_health = false
   }
+
+  depends_on = [aws_acm_certificate_validation.domain]
 }
 
 # ============================================
-# Data Source: Current AWS Account ID
+# Data Sources
 # ============================================
 
 data "aws_caller_identity" "current" {}

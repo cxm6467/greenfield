@@ -1,3 +1,6 @@
+import 'dart:io' show Platform;
+
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:logger/logger.dart';
 
@@ -49,14 +52,17 @@ class AppConfig {
     try {
       _logger.i('Loading app configuration...');
 
-      // Try to load .env file, but don't fail if it doesn't exist
-      // (especially important for web builds where .env isn't deployed)
-      try {
-        await dotenv.load(fileName: '.env');
-        _logger.i('.env file loaded successfully');
-      } catch (e) {
-        _logger.w('.env file not found, using default configuration');
-        _logger.w('This is normal for web builds');
+      // Skip .env loading on web builds (security: never expose .env on client)
+      // On web, configuration comes from environment or defaults
+      if (!kIsWeb) {
+        try {
+          await dotenv.load(fileName: '.env');
+          _logger.i('.env file loaded successfully');
+        } catch (e) {
+          _logger.w('.env file not found, using default configuration');
+        }
+      } else {
+        _logger.i('Web build detected - skipping .env file load (using defaults/stored settings)');
       }
 
       // Priority: Stored settings > .env > defaults
