@@ -70,8 +70,7 @@ class _ArcheryGameState extends State<ArcheryGame>
       return;
     }
 
-    final localPosition =
-        renderObject.globalToLocal(details.globalPosition);
+    final localPosition = renderObject.globalToLocal(details.globalPosition);
 
     setState(() {
       aimX = localPosition.dx;
