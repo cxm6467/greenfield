@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/config/theme_config.dart';
 import '../../providers/character_provider.dart';
 
 class StatAllocationWidget extends ConsumerStatefulWidget {
@@ -23,6 +24,32 @@ class _StatAllocationWidgetState extends ConsumerState<StatAllocationWidget> {
   int get _totalAllocated =>
       _allocations.values.fold(0, (sum, val) => sum + val);
   int get _remainingPoints => maxPoints - _totalAllocated;
+
+  /// Get bonus for a stat, mapping dexterity → agility
+  int _getBonusFor(String stat) {
+    final state = ref.read(characterCreationProvider);
+    final bonuses = <String, int>{};
+
+    // Collect racial bonuses
+    if (state.race != null) {
+      state.race!.statBonuses.forEach((key, value) {
+        bonuses[key] = (bonuses[key] ?? 0) + value;
+      });
+    }
+
+    // Collect class bonuses
+    if (state.characterClass != null) {
+      state.characterClass!.statBonuses.forEach((key, value) {
+        bonuses[key] = (bonuses[key] ?? 0) + value;
+      });
+    }
+
+    if (stat == 'agility') {
+      // Agility gets bonuses from both 'agility' and 'dexterity' keys
+      return (bonuses['agility'] ?? 0) + (bonuses['dexterity'] ?? 0);
+    }
+    return bonuses[stat] ?? 0;
+  }
 
   @override
   void initState() {
@@ -133,7 +160,9 @@ class _StatAllocationWidgetState extends ConsumerState<StatAllocationWidget> {
     String statKey,
     String description,
   ) {
-    final value = _allocations[statKey]!;
+    final baseValue = _allocations[statKey]!;
+    final bonus = _getBonusFor(statKey);
+    final total = baseValue + bonus;
 
     return Card(
       child: Padding(
@@ -167,27 +196,87 @@ class _StatAllocationWidgetState extends ConsumerState<StatAllocationWidget> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 IconButton(
-                  onPressed: value > 0
+                  onPressed: baseValue > 0
                       ? () => _updateAllocation(statKey, -1)
                       : null,
                   icon: const Icon(Icons.remove_circle),
                   iconSize: 32,
                 ),
+                // Base allocation cell (gold)
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
+                    horizontal: 16,
                     vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.primary.withValues(alpha: 0.1),
+                    color: GreenlandsTheme.accentGold.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    '+$value',
+                    '+$baseValue',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
+                      color: GreenlandsTheme.accentGold,
+                    ),
+                  ),
+                ),
+                // Bonus cell (green, only if bonus > 0)
+                if (bonus > 0)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: GreenlandsTheme.successGreen.withValues(
+                        alpha: 0.15,
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: GreenlandsTheme.successGreen.withValues(
+                          alpha: 0.5,
+                        ),
+                        width: 1,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          '+$bonus',
+                          style: Theme.of(context).textTheme.labelLarge
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: GreenlandsTheme.successGreen,
+                              ),
+                        ),
+                        Text(
+                          'bonus',
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(
+                                color: GreenlandsTheme.successGreen.withValues(
+                                  alpha: 0.7,
+                                ),
+                                fontSize: 8,
+                              ),
+                        ),
+                      ],
+                    ),
+                  ),
+                // Total cell (read-only)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    '= $total',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white70,
                     ),
                   ),
                 ),

@@ -12,6 +12,12 @@ provider "aws" {
   region = var.aws_region
 }
 
+# CloudFront requires ACM certificates to be in us-east-1
+provider "aws" {
+  alias  = "us_east_1"
+  region = "us-east-1"
+}
+
 # ============================================
 # SSM Parameter Store - Bedrock API Key
 # ============================================
@@ -334,6 +340,7 @@ data "aws_cloudfront_origin_request_policy" "all_viewer" {
 # ============================================
 
 resource "aws_acm_certificate" "domain" {
+  provider          = aws.us_east_1
   count             = var.domain_name != "" ? 1 : 0
   domain_name       = var.domain_name
   validation_method = "DNS"
@@ -367,6 +374,7 @@ resource "aws_route53_record" "cert_validation" {
 
 # Wait for certificate validation
 resource "aws_acm_certificate_validation" "domain" {
+  provider        = aws.us_east_1
   count           = var.domain_name != "" ? 1 : 0
   certificate_arn = aws_acm_certificate.domain[0].arn
 

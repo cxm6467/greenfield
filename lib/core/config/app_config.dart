@@ -1,5 +1,3 @@
-import 'dart:io' show Platform;
-
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:logger/logger.dart';
@@ -18,7 +16,8 @@ class AppConfig {
   static String claudeModel = 'claude-3-5-sonnet-20241022';
 
   // AWS Bedrock Configuration
-  static String bedrockModel = 'anthropic.claude-3-haiku-20240307-v1:0'; // Claude 3 Haiku via Bedrock (cheapest)
+  static String bedrockModel =
+      'anthropic.claude-3-haiku-20240307-v1:0'; // Claude 3 Haiku via Bedrock (cheapest)
 
   // Proxy URL (works for both Claude and Bedrock)
   // Local development: http://localhost:3001
@@ -62,7 +61,9 @@ class AppConfig {
           _logger.w('.env file not found, using default configuration');
         }
       } else {
-        _logger.i('Web build detected - skipping .env file load (using defaults/stored settings)');
+        _logger.i(
+          'Web build detected - skipping .env file load (using defaults/stored settings)',
+        );
       }
 
       // Priority: Stored settings > .env > defaults
@@ -91,8 +92,7 @@ class AppConfig {
       bedrockModel =
           getEnvVar('BEDROCK_MODEL') ??
           'anthropic.claude-3-sonnet-20240229-v1:0';
-      aiProxyUrl =
-          getEnvVar('AI_PROXY_URL') ?? 'http://localhost:3001';
+      aiProxyUrl = getEnvVar('AI_PROXY_URL') ?? 'http://localhost:3001';
 
       // Load MCP Server config
       mcpServerUrl =
@@ -103,9 +103,7 @@ class AppConfig {
           ? await _settingsStorage!.getGoogleChatWebhook()
           : null;
       googleChatWebhookUrl =
-          storedGoogleChatWebhook ??
-          getEnvVar('GOOGLE_CHAT_WEBHOOK_URL') ??
-          '';
+          storedGoogleChatWebhook ?? getEnvVar('GOOGLE_CHAT_WEBHOOK_URL') ?? '';
       final storedDiscordBotToken = _settingsStorage != null
           ? await _settingsStorage!.getDiscordBotToken()
           : null;

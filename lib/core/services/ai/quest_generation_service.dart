@@ -51,9 +51,7 @@ class QuestGenerationService {
         // Use proxy on web to avoid CORS and protect API key
         // Proxy URL can point to local (http://localhost:3001) or Firebase (/api/claude)
         apiUrl = '${AppConfig.aiProxyUrl}/messages';
-        headers = {
-          'content-type': 'application/json',
-        };
+        headers = {'content-type': 'application/json'};
         _logger.i('Using proxy server for web platform: $apiUrl');
       } else {
         // Direct API call on mobile/desktop
@@ -68,9 +66,7 @@ class QuestGenerationService {
 
       final response = await _dio.post(
         apiUrl,
-        options: Options(
-          headers: headers,
-        ),
+        options: Options(headers: headers),
         data: {
           'model': _model,
           'max_tokens': 1024,

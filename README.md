@@ -220,6 +220,11 @@ DEBUG_MODE=true
 - [ ] Integration tests
 - [ ] Documentation
 
+### 📋 Phase 9: Advanced Features (FUTURE)
+- [ ] **Profile/Character Image Generation**: AI-generated character artwork based on race, class, and appearance choices
+- [ ] **Skill Trees**: Progression system with character abilities and passive bonuses
+- [ ] **Ad-Hoc Mini-Games**: Quest-relevant mini-games (combat, puzzles, debates) with outcome impact
+
 ## 🧪 Testing
 
 ```bash
