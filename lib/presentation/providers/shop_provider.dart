@@ -57,9 +57,10 @@ class ShopNotifier extends StateNotifier<List<CosmeticItem>> {
       return;
     }
 
+    final selectedItem = item;
     state = state.map((cosmetic) {
       // Unequip others of the same type
-      if (cosmetic.type == item.type && cosmetic.id != itemId) {
+      if (cosmetic.type == selectedItem.type && cosmetic.id != itemId) {
         return cosmetic.copyWith(isEquipped: false);
       }
       // Equip the selected item

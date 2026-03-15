@@ -7,11 +7,13 @@ import '../../../domain/entities/mini_game.dart';
 
 class DiceRollGame extends StatefulWidget {
   final MiniGameTheme theme;
-  final VoidCallback onGameComplete;
+  final MiniGameType gameType;
+  final Function(MiniGameResult) onGameComplete;
 
   const DiceRollGame({
     super.key,
     required this.theme,
+    required this.gameType,
     required this.onGameComplete,
   });
 
@@ -258,7 +260,14 @@ class _DiceRollGameState extends State<DiceRollGame>
         ),
         const SizedBox(height: 48),
         ElevatedButton.icon(
-          onPressed: widget.onGameComplete,
+          onPressed: () {
+            final result = MiniGameResult.win(
+              gameType: widget.gameType,
+              theme: widget.theme,
+              score: totalScore,
+            );
+            widget.onGameComplete(result);
+          },
           icon: const Icon(Icons.check),
           label: const Text('CONTINUE'),
         ),

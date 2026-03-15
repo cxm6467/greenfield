@@ -7,11 +7,13 @@ import '../../../domain/entities/mini_game.dart';
 
 class ArcheryGame extends StatefulWidget {
   final MiniGameTheme theme;
-  final VoidCallback onGameComplete;
+  final MiniGameType gameType;
+  final Function(MiniGameResult) onGameComplete;
 
   const ArcheryGame({
     super.key,
     required this.theme,
+    required this.gameType,
     required this.onGameComplete,
   });
 
@@ -272,7 +274,14 @@ class _ArcheryGameState extends State<ArcheryGame>
         ),
         const SizedBox(height: 48),
         ElevatedButton.icon(
-          onPressed: widget.onGameComplete,
+          onPressed: () {
+            final result = MiniGameResult.win(
+              gameType: widget.gameType,
+              theme: widget.theme,
+              score: score,
+            );
+            widget.onGameComplete(result);
+          },
           icon: const Icon(Icons.check),
           label: const Text('CONTINUE'),
         ),

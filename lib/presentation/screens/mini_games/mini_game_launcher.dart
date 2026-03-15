@@ -60,13 +60,29 @@ class _MiniGameLauncherState extends State<MiniGameLauncher> {
   Widget _buildGameWidget() {
     switch (gameType) {
       case MiniGameType.ringToss:
-        return RingTossGame(theme: theme, onGameComplete: _onGameComplete);
+        return RingTossGame(
+          theme: theme,
+          gameType: gameType,
+          onGameComplete: _onGameComplete,
+        );
       case MiniGameType.memoryMatch:
-        return MemoryMatchGame(theme: theme, onGameComplete: _onGameComplete);
+        return MemoryMatchGame(
+          theme: theme,
+          gameType: gameType,
+          onGameComplete: _onGameComplete,
+        );
       case MiniGameType.diceRoll:
-        return DiceRollGame(theme: theme, onGameComplete: _onGameComplete);
+        return DiceRollGame(
+          theme: theme,
+          gameType: gameType,
+          onGameComplete: _onGameComplete,
+        );
       case MiniGameType.archery:
-        return ArcheryGame(theme: theme, onGameComplete: _onGameComplete);
+        return ArcheryGame(
+          theme: theme,
+          gameType: gameType,
+          onGameComplete: _onGameComplete,
+        );
     }
   }
 }
