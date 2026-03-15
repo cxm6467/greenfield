@@ -39,7 +39,7 @@ void main() async {
     runApp(const ProviderScope(child: ShireApp()));
   } catch (e, stackTrace) {
     _logger.e(
-      'Failed to initialize The Greenlands',
+      'Failed to initialize Greenfield',
       error: e,
       stackTrace: stackTrace,
     );

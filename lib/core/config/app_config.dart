@@ -188,7 +188,7 @@ class AppConfig {
   // Get formatted configuration for debugging
   static String getConfigSummary() {
     return '''
-    === The Greenlands Configuration ===
+    === Greenfield Configuration ===
     AI Provider: $aiProvider
     ${aiProvider == 'claude' ? 'Claude Model: $claudeModel' : 'Bedrock Model: $bedrockModel'}
     ${aiProvider == 'claude' ? 'Claude API Key: ${claudeApiKey.isNotEmpty ? "✓ Set" : "✗ Not set"}' : 'AWS Bedrock: (configured via proxy)'}
