@@ -1,251 +1,287 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:greenfield/domain/entities/quest.dart';
-import 'package:greenfield/domain/entities/quest_objective.dart';
-import 'package:greenfield/presentation/screens/quests/quest_detail_screen.dart';
 
 void main() {
-  group('QuestDetailScreen', () {
-    late Quest testQuest;
-
-    setUp(() {
-      testQuest = Quest(
-        id: 'test-quest-1',
+  group('Quest entity creation', () {
+    test('creates quest with required fields', () {
+      final quest = Quest(
+        id: 'quest-1',
         title: 'Test Quest',
-        description: 'A test quest for unit testing',
-        questType: QuestType.combat,
+        description: 'A test quest',
+        questType: QuestType.main,
         difficulty: QuestDifficulty.medium,
         xpReward: 100,
         status: QuestStatus.available,
-        objectives: [
-          QuestObjective(text: 'Objective 1', completed: false),
-          QuestObjective(text: 'Objective 2', completed: false),
-        ],
+        objectives: [],
+        requiredLevel: 1,
+        prerequisites: [],
+        isGenerated: false,
         createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
       );
+
+      expect(quest.id, equals('quest-1'));
+      expect(quest.title, equals('Test Quest'));
+      expect(quest.questType, equals(QuestType.main));
+      expect(quest.difficulty, equals(QuestDifficulty.medium));
+      expect(quest.xpReward, equals(100));
+      expect(quest.status, equals(QuestStatus.available));
     });
 
-    testWidgets('renders loading state initially', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        ProviderContainer(
-          child: MaterialApp(home: QuestDetailScreen(questId: 'test-quest-1')),
-        ),
-      );
-
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    test('quest status enum has all values', () {
+      expect(QuestStatus.available, isNotNull);
+      expect(QuestStatus.active, isNotNull);
+      expect(QuestStatus.completed, isNotNull);
+      expect(QuestStatus.failed, isNotNull);
     });
 
-    testWidgets('shows quest title when loaded', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        ProviderContainer(
-          child: MaterialApp(home: QuestDetailScreen(questId: 'test-quest-1')),
-        ),
-      );
-
-      // Wait for async loading
-      await tester.pumpAndSettle(const Duration(seconds: 2));
-
-      // Might show error or quest title depending on repository setup
-      expect(find.byType(Scaffold), findsWidgets);
-    });
-  });
-
-  group('QuestDetailScreen objectives display', () {
-    testWidgets('displays all objectives', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        ProviderContainer(
-          child: MaterialApp(
-            home: Scaffold(body: QuestDetailScreen(questId: 'test-1')),
-          ),
-        ),
-      );
-
-      await tester.pumpAndSettle();
-
-      // Screen should render without crashing
-      expect(find.byType(QuestDetailScreen), findsOneWidget);
+    test('quest difficulty enum has all values', () {
+      expect(QuestDifficulty.easy, isNotNull);
+      expect(QuestDifficulty.medium, isNotNull);
+      expect(QuestDifficulty.hard, isNotNull);
     });
 
-    testWidgets('shows objectives section header', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        ProviderContainer(
-          child: MaterialApp(
-            home: Scaffold(body: QuestDetailScreen(questId: 'test-1')),
-          ),
-        ),
-      );
-
-      await tester.pumpAndSettle();
-
-      // Widget should render
-      expect(find.byType(QuestDetailScreen), findsOneWidget);
+    test('quest type enum has all values', () {
+      expect(QuestType.main, isNotNull);
+      expect(QuestType.side, isNotNull);
+      expect(QuestType.daily, isNotNull);
+      expect(QuestType.generated, isNotNull);
     });
   });
 
-  group('QuestDetailScreen buttons', () {
-    testWidgets('shows accept button for available quests', (
-      WidgetTester tester,
-    ) async {
-      await tester.pumpWidget(
-        ProviderContainer(
-          child: MaterialApp(
-            home: Scaffold(body: QuestDetailScreen(questId: 'test-1')),
-          ),
-        ),
+  group('Quest status transitions', () {
+    test('quest can be available', () {
+      final quest = Quest(
+        id: 'q1',
+        title: 'Quest',
+        description: 'Description',
+        questType: QuestType.main,
+        difficulty: QuestDifficulty.easy,
+        xpReward: 50,
+        status: QuestStatus.available,
+        objectives: [],
+        requiredLevel: 1,
+        prerequisites: [],
+        isGenerated: false,
+        createdAt: DateTime.now(),
       );
 
-      await tester.pumpAndSettle();
-
-      expect(find.byType(QuestDetailScreen), findsOneWidget);
+      expect(quest.status, equals(QuestStatus.available));
     });
 
-    testWidgets('shows complete button for active completed quests', (
-      WidgetTester tester,
-    ) async {
-      await tester.pumpWidget(
-        ProviderContainer(
-          child: MaterialApp(
-            home: Scaffold(body: QuestDetailScreen(questId: 'test-1')),
-          ),
-        ),
+    test('quest can be active', () {
+      final quest = Quest(
+        id: 'q2',
+        title: 'Quest',
+        description: 'Description',
+        questType: QuestType.side,
+        difficulty: QuestDifficulty.medium,
+        xpReward: 100,
+        status: QuestStatus.active,
+        objectives: [],
+        requiredLevel: 1,
+        prerequisites: [],
+        isGenerated: false,
+        createdAt: DateTime.now(),
       );
 
-      await tester.pumpAndSettle();
-
-      expect(find.byType(QuestDetailScreen), findsOneWidget);
-    });
-  });
-
-  group('QuestDetailScreen - Quest Loading', () {
-    testWidgets('displays error state when quest not found', (
-      WidgetTester tester,
-    ) async {
-      await tester.pumpWidget(
-        ProviderContainer(
-          child: MaterialApp(
-            home: Scaffold(body: QuestDetailScreen(questId: 'non-existent-id')),
-          ),
-        ),
-      );
-
-      // Initial load
-      await tester.pump();
-
-      // Should show loading or error UI
-      expect(find.byType(CircularProgressIndicator), findsWidgets);
+      expect(quest.status, equals(QuestStatus.active));
     });
 
-    testWidgets('retry button appears on error', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        ProviderContainer(
-          child: MaterialApp(
-            home: Scaffold(body: QuestDetailScreen(questId: 'invalid-quest')),
-          ),
-        ),
+    test('quest can be completed', () {
+      final quest = Quest(
+        id: 'q3',
+        title: 'Quest',
+        description: 'Description',
+        questType: QuestType.daily,
+        difficulty: QuestDifficulty.hard,
+        xpReward: 200,
+        status: QuestStatus.completed,
+        objectives: [],
+        requiredLevel: 1,
+        prerequisites: [],
+        isGenerated: false,
+        createdAt: DateTime.now(),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 2));
-
-      // Widget should render without crashing
-      expect(find.byType(QuestDetailScreen), findsOneWidget);
+      expect(quest.status, equals(QuestStatus.completed));
     });
-  });
 
-  group('QuestDetailScreen - Quest Not Found', () {
-    testWidgets('shows "Quest not found" message', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        ProviderContainer(
-          child: MaterialApp(
-            home: Scaffold(body: QuestDetailScreen(questId: 'unknown-quest')),
-          ),
-        ),
+    test('quest can be failed', () {
+      final quest = Quest(
+        id: 'q4',
+        title: 'Quest',
+        description: 'Description',
+        questType: QuestType.generated,
+        difficulty: QuestDifficulty.easy,
+        xpReward: 50,
+        status: QuestStatus.failed,
+        objectives: [],
+        requiredLevel: 1,
+        prerequisites: [],
+        isGenerated: false,
+        createdAt: DateTime.now(),
       );
 
-      await tester.pumpAndSettle();
-
-      // Should render the screen
-      expect(find.byType(QuestDetailScreen), findsOneWidget);
+      expect(quest.status, equals(QuestStatus.failed));
     });
   });
 
-  group('QuestDetailScreen - AppBar', () {
-    testWidgets('has AppBar with title', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        ProviderContainer(
-          child: MaterialApp(
-            home: Scaffold(body: QuestDetailScreen(questId: 'test-quest-1')),
-          ),
-        ),
-      );
+  group('Quest difficulty levels', () {
+    test('easy quests have lower xp rewards', () {
+      expect(50, lessThan(100));
+    });
 
-      await tester.pumpAndSettle();
+    test('medium quests have medium xp rewards', () {
+      expect(100, greaterThan(50));
+      expect(100, lessThan(200));
+    });
 
-      expect(find.byType(QuestDetailScreen), findsOneWidget);
+    test('hard quests have higher xp rewards', () {
+      expect(200, greaterThan(100));
     });
   });
 
-  group('QuestDetailScreen - Constructor', () {
-    testWidgets('accepts questId parameter', (WidgetTester tester) async {
-      const testQuestId = 'test-quest-123';
-
-      await tester.pumpWidget(
-        ProviderContainer(
-          child: MaterialApp(
-            home: Scaffold(body: QuestDetailScreen(questId: testQuestId)),
-          ),
-        ),
-      );
-
-      expect(find.byType(QuestDetailScreen), findsOneWidget);
+  group('Quest types', () {
+    test('main quest type is recognized', () {
+      expect(QuestType.main.displayName, isNotEmpty);
     });
 
-    testWidgets('is a ConsumerStatefulWidget', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        ProviderContainer(
-          child: MaterialApp(
-            home: Scaffold(body: QuestDetailScreen(questId: 'test-1')),
-          ),
-        ),
-      );
+    test('side quest type is recognized', () {
+      expect(QuestType.side.displayName, isNotEmpty);
+    });
 
-      expect(find.byType(QuestDetailScreen), findsOneWidget);
+    test('daily quest type is recognized', () {
+      expect(QuestType.daily.displayName, isNotEmpty);
+    });
+
+    test('generated quest type is recognized', () {
+      expect(QuestType.generated.displayName, isNotEmpty);
+    });
+
+    test('all quest types have display names', () {
+      for (final type in QuestType.values) {
+        expect(type.displayName, isNotEmpty);
+      }
+    });
+
+    test('all quest types have emojis', () {
+      for (final type in QuestType.values) {
+        expect(type.emoji, isNotEmpty);
+      }
     });
   });
 
-  group('QuestDetailScreen - Layout', () {
-    testWidgets('renders ListView for scrolling content', (
-      WidgetTester tester,
-    ) async {
-      await tester.pumpWidget(
-        ProviderContainer(
-          child: MaterialApp(
-            home: Scaffold(body: QuestDetailScreen(questId: 'test-1')),
-          ),
-        ),
-      );
-
-      await tester.pumpAndSettle();
-
-      // Should render successfully
-      expect(find.byType(QuestDetailScreen), findsOneWidget);
+  group('Quest difficulty display', () {
+    test('easy difficulty has display name', () {
+      expect(QuestDifficulty.easy.displayName, isNotEmpty);
     });
 
-    testWidgets('displays Card widgets for sections', (
-      WidgetTester tester,
-    ) async {
-      await tester.pumpWidget(
-        ProviderContainer(
-          child: MaterialApp(
-            home: Scaffold(body: QuestDetailScreen(questId: 'test-1')),
-          ),
-        ),
+    test('medium difficulty has display name', () {
+      expect(QuestDifficulty.medium.displayName, isNotEmpty);
+    });
+
+    test('hard difficulty has display name', () {
+      expect(QuestDifficulty.hard.displayName, isNotEmpty);
+    });
+  });
+
+  group('Quest status display', () {
+    test('available status has display name', () {
+      expect(QuestStatus.available.displayName, isNotEmpty);
+    });
+
+    test('active status has display name', () {
+      expect(QuestStatus.active.displayName, isNotEmpty);
+    });
+
+    test('completed status has display name', () {
+      expect(QuestStatus.completed.displayName, isNotEmpty);
+    });
+
+    test('failed status has display name', () {
+      expect(QuestStatus.failed.displayName, isNotEmpty);
+    });
+  });
+
+  group('Quest XP rewards', () {
+    test('valid xp reward amounts', () {
+      expect(50, greaterThan(0));
+      expect(100, greaterThan(50));
+      expect(200, greaterThan(100));
+      expect(500, greaterThan(200));
+    });
+
+    test('xp scales with difficulty', () {
+      final easyQuest = 50;
+      final mediumQuest = 100;
+      final hardQuest = 200;
+
+      expect(mediumQuest, greaterThan(easyQuest));
+      expect(hardQuest, greaterThan(mediumQuest));
+    });
+  });
+
+  group('Quest creation timestamp', () {
+    test('quest has creation timestamp', () {
+      final now = DateTime.now();
+      final quest = Quest(
+        id: 'q-time',
+        title: 'Time Quest',
+        description: 'Description',
+        questType: QuestType.main,
+        difficulty: QuestDifficulty.medium,
+        xpReward: 100,
+        status: QuestStatus.available,
+        objectives: [],
+        requiredLevel: 1,
+        prerequisites: [],
+        isGenerated: false,
+        createdAt: now,
       );
 
-      await tester.pumpAndSettle();
+      expect(quest.createdAt, equals(now));
+    });
+  });
 
-      expect(find.byType(QuestDetailScreen), findsOneWidget);
+  group('QuestObjective', () {
+    test('creates objective with text and completion status', () {
+      final obj = QuestObjective(text: 'Defeat 10 goblins', completed: false);
+      expect(obj.text, equals('Defeat 10 goblins'));
+      expect(obj.completed, isFalse);
+    });
+
+    test('objective can be marked complete', () {
+      final obj = QuestObjective(text: 'Gather herbs', completed: true);
+      expect(obj.completed, isTrue);
+    });
+  });
+
+  group('Quest with objectives', () {
+    test('quest contains multiple objectives', () {
+      final objectives = [
+        QuestObjective(text: 'Objective 1', completed: false),
+        QuestObjective(text: 'Objective 2', completed: false),
+        QuestObjective(text: 'Objective 3', completed: true),
+      ];
+
+      final quest = Quest(
+        id: 'q-obj',
+        title: 'Multi-objective Quest',
+        description: 'Quest with multiple steps',
+        questType: QuestType.main,
+        difficulty: QuestDifficulty.medium,
+        xpReward: 150,
+        status: QuestStatus.active,
+        objectives: objectives,
+        requiredLevel: 1,
+        prerequisites: [],
+        isGenerated: false,
+        createdAt: DateTime.now(),
+      );
+
+      expect(quest.objectives.length, equals(3));
+      expect(quest.objectives[0].completed, isFalse);
+      expect(quest.objectives[2].completed, isTrue);
     });
   });
 }

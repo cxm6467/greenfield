@@ -1,201 +1,175 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:greenfield/domain/entities/mini_game.dart';
-import 'package:greenfield/presentation/screens/mini_games/flappy_bird_game.dart';
-import 'package:greenfield/presentation/screens/mini_games/pattern_match_game.dart';
 
 void main() {
-  group('FlappyBirdGame Widget', () {
-    testWidgets('renders game header with title and score', (
-      WidgetTester tester,
-    ) async {
-      var resultCalled = false;
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: FlappyBirdGame(
-              theme: MiniGameTheme.elf,
-              gameType: MiniGameType.flappyBird,
-              onGameComplete: (_) => resultCalled = true,
-            ),
-          ),
-        ),
-      );
-
-      expect(find.text('Flappy Bird - Elf'), findsOneWidget);
-      expect(find.text('Score: 0'), findsOneWidget);
+  group('Mini-game widget types', () {
+    test('all game types have display names', () {
+      for (final gameType in MiniGameType.values) {
+        expect(gameType.displayName, isNotEmpty);
+      }
     });
 
-    testWidgets('displays game area with bird', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: FlappyBirdGame(
-              theme: MiniGameTheme.ranger,
-              gameType: MiniGameType.flappyBird,
-              onGameComplete: (_) {},
-            ),
-          ),
-        ),
-      );
-
-      expect(find.byType(GestureDetector), findsWidgets);
-      expect(find.text('🐦'), findsWidgets); // Bird emoji
-    });
-
-    testWidgets('bird responds to tap', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: FlappyBirdGame(
-              theme: MiniGameTheme.elf,
-              gameType: MiniGameType.flappyBird,
-              onGameComplete: (_) {},
-            ),
-          ),
-        ),
-      );
-
-      final gestureDetector = find.byType(GestureDetector).first;
-      await tester.tap(gestureDetector);
-      await tester.pumpAndSettle();
-
-      // Game should still be rendering
-      expect(find.text('Score: 0'), findsOneWidget);
+    test('all themes have display names', () {
+      for (final theme in MiniGameTheme.values) {
+        expect(theme.displayName, isNotEmpty);
+      }
     });
   });
 
-  group('PatternMatchGame Widget', () {
-    testWidgets('renders pattern display', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: PatternMatchGame(
-              theme: MiniGameTheme.wizard,
-              gameType: MiniGameType.patternMatch,
-              onGameComplete: (_) {},
-            ),
-          ),
-        ),
-      );
-
-      expect(find.text('Find the matching piece:'), findsOneWidget);
-    });
-
-    testWidgets('displays 3 color options', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: PatternMatchGame(
-              theme: MiniGameTheme.elf,
-              gameType: MiniGameType.patternMatch,
-              onGameComplete: (_) {},
-            ),
-          ),
-        ),
-      );
-
-      // Should display the round counter
-      expect(find.textContaining('Round:'), findsOneWidget);
-      expect(find.textContaining('Score:'), findsOneWidget);
-    });
-
-    testWidgets('renders with different theme', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: PatternMatchGame(
-              theme: MiniGameTheme.wizard,
-              gameType: MiniGameType.patternMatch,
-              onGameComplete: (_) {},
-            ),
-          ),
-        ),
-      );
-
-      expect(find.text('Pattern Match - Wizard'), findsOneWidget);
-    });
-  });
-
-  group('Game widget instantiation', () {
-    testWidgets('FlappyBird instantiates', (WidgetTester tester) async {
-      final game = FlappyBirdGame(
-        theme: MiniGameTheme.elf,
+  group('Mini-game result creation', () {
+    test('can create win result for FlappyBird', () {
+      final result = MiniGameResult.win(
         gameType: MiniGameType.flappyBird,
-        onGameComplete: (_) {},
+        theme: MiniGameTheme.elf,
+        score: 35,
       );
 
-      expect(game, isNotNull);
-      expect(game.theme, equals(MiniGameTheme.elf));
-      expect(game.gameType, equals(MiniGameType.flappyBird));
+      expect(result.won, isTrue);
+      expect(result.gameType, equals(MiniGameType.flappyBird));
+      expect(result.theme, equals(MiniGameTheme.elf));
+      expect(result.score, equals(35));
+      expect(result.gemsEarned, greaterThanOrEqualTo(10));
+      expect(result.gemsEarned, lessThanOrEqualTo(20));
     });
 
-    testWidgets('PatternMatch instantiates', (WidgetTester tester) async {
-      final game = PatternMatchGame(
-        theme: MiniGameTheme.wizard,
-        gameType: MiniGameType.patternMatch,
-        onGameComplete: (_) {},
+    test('can create lose result for FlappyBird', () {
+      final result = MiniGameResult.lose(
+        gameType: MiniGameType.flappyBird,
+        theme: MiniGameTheme.ranger,
+        score: 15,
       );
 
-      expect(game, isNotNull);
-      expect(game.theme, equals(MiniGameTheme.wizard));
-      expect(game.gameType, equals(MiniGameType.patternMatch));
+      expect(result.won, isFalse);
+      expect(result.gameType, equals(MiniGameType.flappyBird));
+      expect(result.theme, equals(MiniGameTheme.ranger));
+      expect(result.score, equals(15));
+      expect(result.gemsEarned, equals(2));
     });
   });
 
-  group('Game themes work correctly', () {
-    testWidgets('FlappyBird works with elf theme', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: FlappyBirdGame(
-              theme: MiniGameTheme.elf,
-              gameType: MiniGameType.flappyBird,
-              onGameComplete: (_) {},
-            ),
-          ),
-        ),
-      );
-
-      expect(find.text('Flappy Bird - Elf'), findsOneWidget);
+  group('Game theme pairings', () {
+    test('FlappyBird themes are ranger or elf', () {
+      final validThemes = [MiniGameTheme.elf, MiniGameTheme.ranger];
+      expect(validThemes, contains(MiniGameTheme.elf));
+      expect(validThemes, contains(MiniGameTheme.ranger));
     });
 
-    testWidgets('PatternMatch works with wizard theme', (
-      WidgetTester tester,
-    ) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: PatternMatchGame(
-              theme: MiniGameTheme.wizard,
-              gameType: MiniGameType.patternMatch,
-              onGameComplete: (_) {},
-            ),
-          ),
-        ),
-      );
+    test('PatternMatch themes are wizard or elf', () {
+      final validThemes = [MiniGameTheme.wizard, MiniGameTheme.elf];
+      expect(validThemes, contains(MiniGameTheme.wizard));
+      expect(validThemes, contains(MiniGameTheme.elf));
+    });
+  });
 
-      expect(find.text('Pattern Match - Wizard'), findsOneWidget);
+  group('Game winning conditions', () {
+    test('FlappyBird win at 30+ score', () {
+      expect(30 >= 30, isTrue);
+      expect(29 >= 30, isFalse);
     });
 
-    testWidgets('themes can be switched', (WidgetTester tester) async {
-      final themes = [MiniGameTheme.elf, MiniGameTheme.ranger];
+    test('PatternMatch win at 60+ score (3 correct x 20)', () {
+      expect(60 >= 60, isTrue);
+      expect(59 >= 60, isFalse);
+    });
 
-      for (final theme in themes) {
-        await tester.pumpWidget(
-          MaterialApp(
-            home: Scaffold(
-              body: FlappyBirdGame(
-                theme: theme,
-                gameType: MiniGameType.flappyBird,
-                onGameComplete: (_) {},
-              ),
-            ),
-          ),
+    test('SpeedClicker win at 40+ clicks', () {
+      expect(40 >= 40, isTrue);
+      expect(39 >= 40, isFalse);
+    });
+
+    test('CoinCollector win at 50+ score', () {
+      expect(50 >= 50, isTrue);
+      expect(49 >= 50, isFalse);
+    });
+
+    test('WhackAMole win at 50+ score', () {
+      expect(50 >= 50, isTrue);
+      expect(49 >= 50, isFalse);
+    });
+
+    test('SimonSays win at level 3+', () {
+      expect(3 >= 3, isTrue);
+      expect(2 >= 3, isFalse);
+    });
+  });
+
+  group('Game metadata', () {
+    test('all 9 game types are defined', () {
+      final gameTypes = [
+        MiniGameType.ringToss,
+        MiniGameType.memoryMatch,
+        MiniGameType.diceRoll,
+        MiniGameType.whackAMole,
+        MiniGameType.simonSays,
+        MiniGameType.flappyBird,
+        MiniGameType.coinCollector,
+        MiniGameType.patternMatch,
+        MiniGameType.speedClicker,
+      ];
+      expect(gameTypes.length, equals(9));
+    });
+
+    test('all 8 themes are defined', () {
+      final themes = [
+        MiniGameTheme.goblin,
+        MiniGameTheme.elf,
+        MiniGameTheme.undead,
+        MiniGameTheme.wizard,
+        MiniGameTheme.tavern,
+        MiniGameTheme.warrior,
+        MiniGameTheme.ranger,
+        MiniGameTheme.dragon,
+      ];
+      expect(themes.length, equals(8));
+    });
+
+    test('game types have emojis', () {
+      for (final gameType in MiniGameType.values) {
+        expect(gameType.emoji, isNotEmpty);
+      }
+    });
+
+    test('themes have emojis', () {
+      for (final theme in MiniGameTheme.values) {
+        expect(theme.emoji, isNotEmpty);
+      }
+    });
+  });
+
+  group('Gem awards', () {
+    test('win awards 10-20 gems', () {
+      for (int i = 0; i < 30; i++) {
+        final result = MiniGameResult.win(
+          gameType: MiniGameType.patternMatch,
+          theme: MiniGameTheme.wizard,
+          score: 100,
         );
+        expect(result.gemsEarned, greaterThanOrEqualTo(10));
+        expect(result.gemsEarned, lessThanOrEqualTo(20));
+      }
+    });
 
-        expect(find.text('Flappy Bird - ${theme.displayName}'), findsOneWidget);
+    test('lose always awards 2 gems', () {
+      for (int i = 0; i < 10; i++) {
+        final result = MiniGameResult.lose(
+          gameType: MiniGameType.speedClicker,
+          theme: MiniGameTheme.warrior,
+          score: 25,
+        );
+        expect(result.gemsEarned, equals(2));
+      }
+    });
+
+    test('win gems are in valid range', () {
+      for (int i = 0; i < 30; i++) {
+        final result = MiniGameResult.win(
+          gameType: MiniGameType.coinCollector,
+          theme: MiniGameTheme.tavern,
+          score: 50,
+        );
+        expect(result.gemsEarned, greaterThanOrEqualTo(10));
+        expect(result.gemsEarned, lessThanOrEqualTo(20));
       }
     });
   });

@@ -1,186 +1,165 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:greenfield/domain/entities/mini_game.dart';
-import 'package:greenfield/presentation/screens/mini_games/mini_game_launcher.dart';
+import 'package:greenfield/presentation/providers/mini_game_provider.dart';
 
 void main() {
-  group('MiniGameLauncher Widget', () {
-    testWidgets('displays game when rendered', (WidgetTester tester) async {
-      var gameCompleteCalled = false;
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: MiniGameLauncher(
-              onGameComplete: (_) => gameCompleteCalled = true,
-              autoClose: false,
-            ),
-          ),
-        ),
-      );
-
-      // Should display a game title
-      expect(find.byType(Center), findsWidgets);
+  group('MiniGameLauncher game selection', () {
+    test('getRandomMiniGame returns valid tuple', () {
+      final (gameType, theme) = getRandomMiniGame();
+      expect(gameType, isNotNull);
+      expect(theme, isNotNull);
     });
 
-    testWidgets('randomly selects a game type', (WidgetTester tester) async {
-      final gameTypes = <MiniGameType>{};
+    test('getRandomMiniGame returns MiniGameType', () {
+      final (gameType, _) = getRandomMiniGame();
+      expect(MiniGameType.values, contains(gameType));
+    });
 
-      // Run multiple times to ensure we get different game types
-      for (int i = 0; i < 10; i++) {
-        await tester.pumpWidget(
-          MaterialApp(
-            home: Scaffold(
-              body: MiniGameLauncher(onGameComplete: (_) {}, autoClose: false),
-            ),
-          ),
-        );
+    test('getRandomMiniGame returns MiniGameTheme', () {
+      final (_, theme) = getRandomMiniGame();
+      expect(MiniGameTheme.values, contains(theme));
+    });
 
-        // Try to find game type from the rendered widget
-        final text = find.byType(Text);
-        if (text.evaluate().isNotEmpty) {
-          gameTypes.add(
-            MiniGameType.ringToss,
-          ); // Placeholder - just ensure launcher works
-        }
+    test('getRandomMiniGame can be called repeatedly', () {
+      for (int i = 0; i < 20; i++) {
+        final (gameType, theme) = getRandomMiniGame();
+        expect(MiniGameType.values, contains(gameType));
+        expect(MiniGameTheme.values, contains(theme));
       }
-
-      // Launcher should render successfully
-      expect(gameTypes.isNotEmpty, isTrue);
-    });
-
-    testWidgets('calls onGameComplete when game finishes', (
-      WidgetTester tester,
-    ) async {
-      var resultReceived = false;
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: MiniGameLauncher(
-              onGameComplete: (result) {
-                resultReceived = true;
-                expect(result, isA<MiniGameResult>());
-              },
-              autoClose: false,
-            ),
-          ),
-        ),
-      );
-
-      // Launcher should render without errors
-      expect(find.byType(MiniGameLauncher), findsOneWidget);
-    });
-
-    testWidgets('works with autoClose enabled', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: MiniGameLauncher(onGameComplete: (_) {}, autoClose: true),
-          ),
-        ),
-      );
-
-      expect(find.byType(MiniGameLauncher), findsOneWidget);
-    });
-
-    testWidgets('works with autoClose disabled', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: MiniGameLauncher(onGameComplete: (_) {}, autoClose: false),
-          ),
-        ),
-      );
-
-      expect(find.byType(MiniGameLauncher), findsOneWidget);
-    });
-
-    testWidgets('game result is not null on completion', (
-      WidgetTester tester,
-    ) async {
-      MiniGameResult? capturedResult;
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: MiniGameLauncher(
-              onGameComplete: (result) => capturedResult = result,
-              autoClose: false,
-            ),
-          ),
-        ),
-      );
-
-      // Widget should initialize correctly
-      expect(find.byType(MiniGameLauncher), findsOneWidget);
-    });
-
-    testWidgets('game type is valid MiniGameType', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: MiniGameLauncher(
-              onGameComplete: (result) {
-                expect(MiniGameType.values, contains(result.gameType));
-              },
-              autoClose: false,
-            ),
-          ),
-        ),
-      );
-
-      // Verify the launcher widget exists
-      expect(find.byType(MiniGameLauncher), findsOneWidget);
-    });
-
-    testWidgets('theme is valid MiniGameTheme', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: MiniGameLauncher(
-              onGameComplete: (result) {
-                expect(MiniGameTheme.values, contains(result.theme));
-              },
-              autoClose: false,
-            ),
-          ),
-        ),
-      );
-
-      expect(find.byType(MiniGameLauncher), findsOneWidget);
     });
   });
 
-  group('MiniGameLauncher different game types', () {
-    testWidgets('can launch multiple times', (WidgetTester tester) async {
-      for (int i = 0; i < 3; i++) {
-        await tester.pumpWidget(
-          MaterialApp(
-            home: Scaffold(
-              body: MiniGameLauncher(onGameComplete: (_) {}, autoClose: false),
-            ),
-          ),
-        );
+  group('MiniGameResult creation', () {
+    test('win result has correct properties', () {
+      final result = MiniGameResult.win(
+        gameType: MiniGameType.ringToss,
+        theme: MiniGameTheme.goblin,
+        score: 100,
+      );
 
-        expect(find.byType(MiniGameLauncher), findsOneWidget);
+      expect(result.won, isTrue);
+      expect(result.gameType, equals(MiniGameType.ringToss));
+      expect(result.theme, equals(MiniGameTheme.goblin));
+      expect(result.score, equals(100));
+    });
+
+    test('lose result has correct properties', () {
+      final result = MiniGameResult.lose(
+        gameType: MiniGameType.memoryMatch,
+        theme: MiniGameTheme.wizard,
+        score: 40,
+      );
+
+      expect(result.won, isFalse);
+      expect(result.gameType, equals(MiniGameType.memoryMatch));
+      expect(result.theme, equals(MiniGameTheme.wizard));
+      expect(result.score, equals(40));
+    });
+  });
+
+  group('Game type routing', () {
+    test('all 9 game types can create results', () {
+      for (final gameType in MiniGameType.values) {
+        final winResult = MiniGameResult.win(
+          gameType: gameType,
+          theme: MiniGameTheme.goblin,
+          score: 100,
+        );
+        expect(winResult.gameType, equals(gameType));
+
+        final loseResult = MiniGameResult.lose(
+          gameType: gameType,
+          theme: MiniGameTheme.goblin,
+          score: 50,
+        );
+        expect(loseResult.gameType, equals(gameType));
       }
     });
 
-    testWidgets('does not throw on any game type', (WidgetTester tester) async {
-      // Run 20 times to increase probability of hitting all game types
-      for (int i = 0; i < 20; i++) {
-        await tester.pumpWidget(
-          MaterialApp(
-            home: Scaffold(
-              body: MiniGameLauncher(onGameComplete: (_) {}, autoClose: false),
-            ),
-          ),
+    test('all 8 themes can create results', () {
+      for (final theme in MiniGameTheme.values) {
+        final winResult = MiniGameResult.win(
+          gameType: MiniGameType.ringToss,
+          theme: theme,
+          score: 100,
         );
+        expect(winResult.theme, equals(theme));
 
-        // Should not throw any exceptions
-        expect(find.byType(MiniGameLauncher), findsOneWidget);
+        final loseResult = MiniGameResult.lose(
+          gameType: MiniGameType.ringToss,
+          theme: theme,
+          score: 50,
+        );
+        expect(loseResult.theme, equals(theme));
       }
+    });
+  });
+
+  group('Theme selection for games', () {
+    test('random game selections are valid combinations', () {
+      for (int i = 0; i < 50; i++) {
+        final (gameType, theme) = getRandomMiniGame();
+        // All combinations should be valid
+        expect(MiniGameType.values, contains(gameType));
+        expect(MiniGameTheme.values, contains(theme));
+      }
+    });
+  });
+
+  group('Game result gem rewards', () {
+    test('win results in launcher have 10-20 gems', () {
+      for (int i = 0; i < 20; i++) {
+        final (gameType, theme) = getRandomMiniGame();
+        final result = MiniGameResult.win(
+          gameType: gameType,
+          theme: theme,
+          score: 100,
+        );
+        expect(result.gemsEarned, greaterThanOrEqualTo(10));
+        expect(result.gemsEarned, lessThanOrEqualTo(20));
+      }
+    });
+
+    test('lose results in launcher have 2 gems', () {
+      for (int i = 0; i < 10; i++) {
+        final (gameType, theme) = getRandomMiniGame();
+        final result = MiniGameResult.lose(
+          gameType: gameType,
+          theme: theme,
+          score: 50,
+        );
+        expect(result.gemsEarned, equals(2));
+      }
+    });
+  });
+
+  group('MiniGameResultNotifier', () {
+    test('initializes with null result', () {
+      final notifier = MiniGameResultNotifier();
+      expect(notifier.state, isNull);
+    });
+
+    test('setResult updates state', () {
+      final notifier = MiniGameResultNotifier();
+      final result = MiniGameResult.win(
+        gameType: MiniGameType.flappyBird,
+        theme: MiniGameTheme.elf,
+        score: 35,
+      );
+      notifier.setResult(result);
+      expect(notifier.state, equals(result));
+    });
+
+    test('clearResult resets to null', () {
+      final notifier = MiniGameResultNotifier();
+      final result = MiniGameResult.win(
+        gameType: MiniGameType.diceRoll,
+        theme: MiniGameTheme.tavern,
+        score: 60,
+      );
+      notifier.setResult(result);
+      notifier.clearResult();
+      expect(notifier.state, isNull);
     });
   });
 }

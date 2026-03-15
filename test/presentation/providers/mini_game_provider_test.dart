@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:greenfield/domain/entities/mini_game.dart';
 import 'package:greenfield/presentation/providers/mini_game_provider.dart';
 
 void main() {
@@ -202,16 +203,18 @@ void main() {
 
     test('multiple win results have varying gems', () {
       final gems = <int>{};
-      for (int i = 0; i < 20; i++) {
+      for (int score = 0; score < 100; score++) {
         final result = MiniGameResult.win(
           gameType: MiniGameType.ringToss,
           theme: MiniGameTheme.goblin,
-          score: 100,
+          score: score,
         );
+        // Verify the deterministic gems formula for each score.
+        expect(result.gemsEarned, equals(10 + score ~/ 10));
         gems.add(result.gemsEarned);
       }
-      // Should have some variation in gem awards (not all the same)
-      expect(gems.length, greaterThan(1));
+      // Scores 0–99 should yield gem values 10–19, i.e. 10 distinct values.
+      expect(gems.length, equals(10));
     });
   });
 }
