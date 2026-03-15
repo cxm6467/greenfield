@@ -90,9 +90,7 @@ class GoogleChatHealthCheckService extends HealthCheckService {
           .post(
             webhookUrl,
             options: Options(headers: {'Content-Type': 'application/json'}),
-            data: {
-              'text': '🏰 The Greenlands setup wizard - connection test ✓',
-            },
+            data: {'text': '🏰 Greenfield setup wizard - connection test ✓'},
           )
           .timeout(timeout);
 

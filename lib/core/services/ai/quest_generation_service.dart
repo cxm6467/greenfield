@@ -117,7 +117,7 @@ class QuestGenerationService {
         'None';
 
     return '''
-You are a quest master for The Greenlands RPG, a fantasy adventure inspired by The Lord of the Rings.
+You are a quest master for Greenfield RPG, a fantasy adventure.
 
 Generate a quest for:
 - Character: $characterName, Level $playerLevel ${race.displayName} ${characterClass.displayName}
@@ -127,7 +127,7 @@ Quest requirements:
 1. Appropriate difficulty for level $playerLevel (harder quests for higher levels)
 2. 2-4 objectives that fit the character class and race
 3. XP reward: ${_calculateXpReward(playerLevel)}
-4. Fits Middle-earth style (Greenlands = Shire, Old Woods = Mirkwood, Iron Peak = Lonely Mountain)
+4. Set in the Greenfield world (Greenlands, Old Woods, Iron Peak, etc.)
 5. Quest should be engaging and thematically appropriate
 6. Avoid repeating themes from previously completed quests
 

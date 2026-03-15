@@ -217,7 +217,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
 
   Widget _buildWelcomeContent(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('THE GREENLANDS')),
+      appBar: AppBar(title: const Text('GREENFIELD')),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
